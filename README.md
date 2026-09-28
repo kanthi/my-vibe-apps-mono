@@ -20,6 +20,7 @@ templates/    copy-paste starters — copy into apps/, never import
 | [focus](apps/focus/) | Menu-bar Pomodoro timer | macOS (not started) | wip |
 | [meter](apps/meter/) | Menu-bar monitor of local AI usage, starting with agy and Grok | macOS (not started) | wip |
 | [freedium-browser-ext](apps/freedium-browser-ext/) | Opens the current page on freedium-mirror.cfd | Browser extension (Chrome, Brave, Firefox, Safari) | usable |
+| [timed-macos-scr](apps/timed-macos-scr/) | 3D analog clock macOS screen saver with live seconds and top-right digital HUD | macOS (Swift / SwiftUI / ScreenSaver) | usable |
 
 Status is one of: `wip`, `usable`, `shipped`, `archived`, `graduated`.
 
