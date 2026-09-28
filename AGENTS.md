@@ -1,0 +1,32 @@
+# Incubator conventions
+
+This repository is a folder of independent apps, not a coupled monorepo.
+
+## Where to work
+
+- Put every new app in `apps/<kebab-case-slug>/`.
+- Treat that folder as a standalone repository: its own README, `.gitignore`, lockfile, env example, and scripts.
+- Open the app folder as the project root when coding it, so context stays inside the app.
+
+## Do not
+
+- Add a root `package.json`, pnpm/npm/yarn workspace, Turborepo, or Nx.
+- Add shared runtime libraries under `packages/` (or similar) that apps import.
+- Add a root `tsconfig` that apps extend, a root `.env`, or CI that an app needs in order to run.
+- Nest an app inside another app, or group apps by stack (`web/`, `mobile/`) or status (`wip/`, `live/`).
+
+Status belongs in the app README and the root catalog table.
+
+## Templates vs shared code
+
+- `templates/` is for copy-paste starters. Copy into `apps/<slug>/`. Never import a template as a dependency.
+- If two apps need the same helper, copy it for now. A real shared package is a later decision, and it blocks clean extraction.
+
+## Lifecycle
+
+- Abandoned: `git mv apps/<slug> archive/<slug>`.
+- Graduated: extract with `git filter-repo --subdirectory-filter apps/<slug>` on a fresh clone, then leave a pointer README or move the folder to `archive/`.
+
+## Root files
+
+Root `.gitignore` is only OS, editor, and secrets. Stack-specific ignores (`node_modules`, `.next`, `dist`, `.venv`, Xcode userdata, …) live in the app.

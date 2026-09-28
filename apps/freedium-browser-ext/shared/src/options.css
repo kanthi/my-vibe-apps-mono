@@ -1,0 +1,88 @@
+:root {
+  color-scheme: light;
+  --ink: #1c1915;
+  --muted: #5c564c;
+  --paper: #f6f1e7;
+  --line: #ddd4c4;
+  --field: #fffdf8;
+  --accent: #1f4d38;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15px/1.45 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+main {
+  width: min(28rem, calc(100% - 2rem));
+  margin: 1.5rem auto 2rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  margin: 0.35rem 0 1.25rem;
+  color: var(--muted);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font: 600 0.78rem/1.2 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--field);
+  color: inherit;
+  font: 14px/1.3 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  background: var(--accent);
+  color: #f6f1e7;
+  font: 600 14px/1 ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+button#reset {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+#status {
+  min-height: 1.2em;
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font: 13px/1.3 ui-sans-serif, system-ui, sans-serif;
+}
+
+#status[data-kind="error"] {
+  color: #8a3a2a;
+}
