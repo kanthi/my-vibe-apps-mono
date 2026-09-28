@@ -1,37 +1,36 @@
 # timed-macos-scr
 
-An aesthetic, VisionOS-inspired analog clock screen saver for macOS, meticulously crafted after the iconic clock design concept by [@tweetbylokki on X/Twitter](https://x.com/tweetbylokki).
+An aesthetic, borderless minimalist **Bauhaus Horological Clock** screen saver for macOS, faithfully replicating the acclaimed clock design by [Atilla Taşkıran (bauhausclock.com)](https://bauhausclock.com).
 
-Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming to Apple's official `ScreenSaverView` framework, featuring a pure **Obsidian Dark** aesthetic, dynamic full-screen vector scaling, and real-time live clock animation with a silky 60 FPS sweeping second hand.
+Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming to Apple's official `ScreenSaverView` framework, featuring adaptive **Glacier White Light Mode** and **Swiss BGW9 Electric Cyan Dark Mode**, dynamic full-screen vector geometry, and real-time live clock animation with a continuous 60 FPS sweeping second hand.
 
-![Timed Dark Screen Saver Preview](Resources/preview_dark.png)
+![Bauhaus Clock Screen Saver Preview](Resources/preview_duo.png)
 
 ---
 
 ## Features
 
-- **Version**: `0.007`
-- **Strictly a macOS Screen Saver**:
+- **Version**: `0.008`
+- **Strictly a Native macOS Screen Saver**:
   - Compliant with Apple's official `ScreenSaver` framework (`ScreenSaverView` lifecycle with `init(frame:isPreview:)`, `startAnimation()`, `stopAnimation()`, and 60 FPS `animateOneFrame()`).
-  - Pure native `.saver` bundle with zero external runtime dependencies.
-- **Full-Screen 3D Realistic Watch Face**:
-  - The watch itself is **full screen**, occupying **97% of the display height** with zero awkward pillarbox boundaries.
-  - Multi-layered **brushed titanium bezel** with directional 135° lighting (specular sheen on top-left, deep shadow on bottom-right).
-  - Stepped **3D conical rehaut** (chapter ring wall) casting an ambient occlusion shadow onto the dial plate.
-  - **Curved sapphire crystal reflection sheen** with seamless optical anti-reflective coating and specular rim highlight.
-- **Pure Symmetrical Obsidian Dial**:
-  - Pristine, uninterrupted dial face with radial lighting and complete 360° horological balance across all 12 hours.
-- **Concentric Dial Architecture & Curvature-Aligned Swiss Typography**:
-  - Organized into 4 concentric tiers: radial spoke hairlines (`0.10`–`0.73`), Super-LumiNova glowing batons (`0.57`–`0.70`), precision 60-minute chapter ring (`0.74`–`0.79`), and curvature-aligned numerals (`0.86`).
-  - Swiss watch typography in **SF Pro Display Medium with tabular digits**, curved tangent to the chapter ring with generous breathing margins.
-- **3D Faceted Hands & Multi-Level Elevation Shadows**:
-  - **Faceted Hour & Minute Hands**: Split longitudinal bevels (illuminated flank vs shadow flank) with recessed Super-LumiNova neon lime center channels.
-  - **Layered 3D Elevation Shadows**: Hour hand casts a realistic shadow onto the dial; minute hand sits higher and casts a longer shadow; live sweeping second hand floats above both.
-  - **Live Sweeping Seconds Hand**: Ultra-thin titanium needle with a skeletonized open-ring counterweight and glowing neon lime tip gliding smoothly at 60 FPS.
-  - **Multi-Tier Center Pinion Cap**: Turned metal base, chamfered polished bevel, and a domed neon lime jewel.
-- **Top-Right Floating Digital Clock HUD (Outside the Ring)**:
-  - Positioned outside the watch ring at the top-right corner of the display.
-  - Dark titanium capsule pill displaying `HH:MM • SS` with internal slashed zero (`0̸`), cool metallic minutes, glowing amber jewel (`•`), live neon lime seconds (`#8cf026`), and companion circular AM/PM dish.
+  - Pure native `.saver` bundle with zero companion applications, helper daemons, or external runtime dependencies.
+- **Adaptive Day & Night Horological Dial**:
+  - **Light Mode (Glacier Ceramic White)**: Soothing off-white ceramic canvas (`#EAEFF2`), tactile 3D embossed ice-cyan pill batons with beveled highlights, crisp graphite Bauhaus typography, and brushed titanium hands with central lume channels.
+  - **Dark Mode (Swiss BGW9 Super-LumiNova)**: Deep obsidian OLED pitch black (`#050709`), radiant electric cyan lume (`#00F2FF`) with ambient bloom on numerals, batons, and hands, alongside muted deep-slate minute ticks.
+  - Automatically adapts to your macOS system appearance (`Dark Mode` / `Light Mode`).
+- **4 Concentric Horological Tiers**:
+  1. **Tier 1: Inner Upright Bauhaus Hour Numerals (1–12)**: Upright, centered numerals in rounded Bauhaus typography with circular bowls and balanced geometry.
+  2. **Tier 2: 3D Embossed Hour Batons (12 Pills)**: Radial capsule batons at each hour mark, shaded with realistic directional lighting (white highlight on top-left, drop shadow on bottom-right) in light mode, and high-intensity luminous core with bloom in dark mode.
+  3. **Tier 3: Precision Minute Track**: 4 thin radial tick marks neatly recessed between each hour baton.
+  4. **Tier 4: Outer 5-Minute Numerals (60, 05, 10, ... 55)**: Tangentially aligned 5-minute numerals following the dial circumference with upright readability.
+- **Sculpted Hands & Silky 60 FPS Sweep**:
+  - **Hour & Minute Hands**: Tapered pencil shape with split 3D longitudinal chamfers (light flank vs shadow flank) and recessed luminescent central channels.
+  - **Sweeping Second Hand**: Ultra-fine needle gliding continuously at 60 FPS, extending through the outer 5-minute ring with a rounded counterweight tail.
+  - **Center Pinion**: Turned metal collet washer with an open dark center aperture and second hand pivot cap.
+- **Interactive Full-Screen Preview**:
+  - Instant ephemeral preview via `./scripts/preview.sh`.
+  - Press `Space` or `T` while previewing to toggle between Light and Dark mode.
+  - Press `ESC` or `Q` to exit.
 
 ---
 
@@ -48,7 +47,7 @@ Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming 
 # 1. Build the release screensaver bundle (dist/TimedClock.saver)
 ./scripts/build.sh
 
-# 2. Test live in full-screen without installing (Press any key or click to exit)
+# 2. Test live in full-screen without installing (Press SPACE to toggle Light/Dark, ESC to exit)
 ./scripts/preview.sh
 
 # 3. Install into macOS System Settings > Screen Savers
@@ -63,20 +62,21 @@ Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming 
 timed-macos-scr/
 ├── Package.swift               # Swift Package manifest (TimedClockCore)
 ├── Sources/
-│   ├── TimedClockCore/         # Scalable vector views, dark theme tokens, and live time model
-│   │   ├── TimedTheme.swift    # Dark color tokens and aesthetic constants
+│   ├── TimedClockCore/         # Scalable vector views, themes, and live time model
+│   │   ├── TimedTheme.swift    # BauhausDialTheme (Light & Dark color palettes & tokens)
 │   │   ├── TimedClockModel.swift # 60 FPS high-precision time publisher (hours, minutes, seconds)
-│   │   ├── TimedClockCardView.swift # Full-screen analog dial, sculpted hands, sweeping second hand, pill
-│   │   └── TimedClockMainView.swift # Full-screen layout orchestrator with edge-to-edge backdrop
+│   │   └── TimedClockMainView.swift # Full-screen Bauhaus clock orchestrator
 │   └── TimedClockSaver/        # Native Apple ScreenSaverView host
 │       └── TimedClockScreenSaverView.swift
-├── Resources/                  # High-resolution screenshot render
-│   └── preview_dark.png
+├── Resources/                  # High-resolution screenshot renders
+│   ├── preview_light.png       # Glacier White daylight preview
+│   ├── preview_dark.png        # Swiss BGW9 cyan night preview
+│   └── preview_duo.png         # Side-by-side comparison preview
 ├── scripts/
 │   ├── build.sh                # Compiles TimedClock.saver Mach-O bundle
 │   ├── install.sh              # 1-click installer into ~/Library/Screen Savers/
 │   ├── preview.sh              # Non-intrusive full-screen live preview
-│   ├── preview_runner.swift    # Ephemeral test runner (dismiss on any key)
+│   ├── preview_runner.swift    # Ephemeral test runner with Spacebar Light/Dark toggle
 │   └── render_preview.swift    # High-resolution vector renderer for documentation
 └── README.md
 ```
@@ -85,5 +85,5 @@ timed-macos-scr/
 
 ## Credits
 
-Clock design concept inspired by **[@tweetbylokki](https://x.com/tweetbylokki)** on X (Twitter).
-Engineered and packaged for macOS by **Antigravity**.
+Replication of the **Bauhaus Clock** design by **[Atilla Taşkıran](https://bauhausclock.com)**.
+Engineered and packaged natively for macOS by **Antigravity**.

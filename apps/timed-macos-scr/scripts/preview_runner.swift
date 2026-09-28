@@ -2,13 +2,38 @@ import AppKit
 import SwiftUI
 import TimedClockCore
 
-/// Minimal ephemeral runner to preview the Timed macOS Screen Saver in full-screen
-/// without installing or touching system preferences.
+/// Fullscreen runner to preview the Bauhaus Clock macOS Screen Saver
+/// Press SPACE or T to toggle between Light (Glacier White) and Dark (BGW9 Cyan Lume) modes.
+/// Press ESC or Q to exit.
+@MainActor
+final class PreviewState: ObservableObject {
+    @Published var theme: BauhausDialTheme = .light
+
+    func toggleTheme() {
+        if theme.isDark {
+            theme = .light
+        } else {
+            theme = .dark
+        }
+    }
+}
+
+struct PreviewRootView: View {
+    @ObservedObject var state: PreviewState
+    @ObservedObject var model: TimedClockModel
+
+    var body: some View {
+        TimedClockMainView(model: model, theme: state.theme)
+            .ignoresSafeArea()
+    }
+}
+
 @main
 @MainActor
 final class PreviewApp: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     let model = TimedClockModel.shared
+    let state = PreviewState()
 
     static func main() {
         let app = NSApplication.shared
@@ -22,7 +47,6 @@ final class PreviewApp: NSObject, NSApplicationDelegate {
         let screen = NSScreen.main ?? NSScreen.screens[0]
         let screenRect = screen.frame
 
-        // Create fullscreen preview window
         let window = KeyWindow(
             contentRect: screenRect,
             styleMask: [.borderless, .fullSizeContentView],
@@ -32,10 +56,11 @@ final class PreviewApp: NSObject, NSApplicationDelegate {
         window.level = .floating
         window.isOpaque = true
         window.backgroundColor = .black
-        window.title = "Timed Screen Saver Preview"
+        window.title = "Bauhaus Clock Screen Saver Preview"
         window.center()
+        window.previewState = state
 
-        let rootView = TimedClockMainView(model: model)
+        let rootView = PreviewRootView(state: state, model: model)
         let hostingView = NSHostingView(rootView: rootView)
         hostingView.frame = window.contentView!.bounds
         hostingView.autoresizingMask = [.width, .height]
@@ -49,16 +74,22 @@ final class PreviewApp: NSObject, NSApplicationDelegate {
 
 @MainActor
 class KeyWindow: NSWindow {
+    weak var previewState: PreviewState?
+
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
 
     override func keyDown(with event: NSEvent) {
-        // Any key dismisses the screensaver preview (Esc, Q, Space, Return, etc.)
+        if event.keyCode == 49 || event.charactersIgnoringModifiers?.lowercased() == "t" {
+            // Spacebar (keyCode 49) or 'T' toggles Light / Dark mode
+            previewState?.toggleTheme()
+            return
+        }
+        // ESC (53) or Q or any other key dismisses preview
         NSApp.terminate(nil)
     }
 
     override func mouseDown(with event: NSEvent) {
-        // Mouse click also dismisses the screensaver preview
         NSApp.terminate(nil)
     }
 }

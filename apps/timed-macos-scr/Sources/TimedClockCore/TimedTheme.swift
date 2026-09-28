@@ -1,122 +1,147 @@
 import SwiftUI
 
-/// Pure Dark Palette and aesthetic tokens for the Timed macOS Screen Saver
-public struct TimedColorPalette: Sendable {
-    // Backdrop
-    public let backdropGradientTop: Color
-    public let backdropGradientBottom: Color
+/// Color theme and aesthetic tokens for the Bauhaus Horological Clock Screen Saver
+/// Exactly replicating the Bauhaus Clock design (Glacier White Light Mode & Swiss BGW9 Dark Mode).
+public struct BauhausDialTheme: Sendable {
+    public let isDark: Bool
 
-    // Squircle card
-    public let cardGradientTop: Color
-    public let cardGradientBottom: Color
-    public let cardBorderTop: Color
-    public let cardBorderBottom: Color
-    public let cardShadowPrimary: Color
-    public let cardShadowSecondary: Color
+    // Background Canvas
+    public let canvasBackgroundGradientTop: Color
+    public let canvasBackgroundGradientBottom: Color
+    public let dialAmbientGlow: Color
 
-    // Digital pill well
-    public let pillBackgroundTop: Color
-    public let pillBackgroundBottom: Color
-    public let pillBorderTop: Color
-    public let pillBorderBottom: Color
-    public let pillHourText: Color
-    public let pillMinuteText: Color
-    public let pillSecondText: Color
-    public let pillDot: Color
-    public let pillDotGlow: Color
+    // Tier 1: Inner Hour Numerals (1–12)
+    public let innerNumeralColor: Color
+    public let innerNumeralGlowColor: Color
+    public let innerNumeralGlowRadius: CGFloat
 
-    // AM/PM Dish
-    public let badgeBackgroundTop: Color
-    public let badgeBackgroundBottom: Color
-    public let badgeBorder: Color
-    public let badgeText: Color
+    // Tier 2: 3D Embossed Hour Batons (12 pills)
+    public let batonFillColor: Color
+    public let batonFillGradientBottom: Color
+    public let batonHighlightColor: Color
+    public let batonShadowColor: Color
+    public let batonGlowColor: Color
+    public let batonGlowRadius: CGFloat
 
-    // Dial elements
-    public let spokeLine: Color
-    public let minuteTick: Color
-    public let hourNumeral: Color
-    public let centerDiscFill: Color
-    public let centerDiscBorder: Color
-    public let centerDiscShadow: Color
+    // Tier 3: Minute Track Ticks
+    public let minuteTickColor: Color
 
-    // Hour marker lime capsule: electric neon lime #8cf026
-    public let hourMarkerCore: Color
-    public let hourMarkerCoreGradientBottom: Color
-    public let hourMarkerFrame: Color
-    public let hourMarkerGlow: Color
-    public let hourMarkerShadow: Color
+    // Tier 4: Outer 5-Minute Numerals (60, 05, 10, ... 55)
+    public let outerNumeralColor: Color
 
-    // Clock hands
-    public let handBodyFillTop: Color
-    public let handBodyFillBottom: Color
-    public let handBodyBorder: Color
-    public let handBodyShadow: Color
-    public let handNeonGroove: Color
-    public let handNeonGlow: Color
+    // Hands: Hour & Minute
+    public let handBodyLeftColor: Color
+    public let handBodyRightColor: Color
+    public let handBodyShadowColor: Color
+    public let handGrooveColor: Color
+    public let handGrooveGradientBottom: Color
+    public let handGrooveGlowColor: Color
+    public let handBorderColor: Color
 
-    // Second hand
-    public let secondHandNeedle: Color
-    public let secondHandTip: Color
-    public let secondHandTipGlow: Color
-    public let secondHandCap: Color
+    // Second Hand
+    public let secondHandColor: Color
+    public let secondHandGlowColor: Color
+    public let secondHandShadowColor: Color
 
-    public static let shared = TimedColorPalette(
-        // Deep obsidian OLED backdrop
-        backdropGradientTop: Color(red: 0.050, green: 0.052, blue: 0.058),
-        backdropGradientBottom: Color(red: 0.025, green: 0.026, blue: 0.030),
+    // Center Pinion Washer & Collet
+    public let pinionOuterColor: Color
+    public let pinionBorderColor: Color
+    public let pinionCenterHoleColor: Color
+    public let pinionHighlightColor: Color
 
-        // Dark squircle card: matte charcoal obsidian
-        cardGradientTop: Color(red: 0.125, green: 0.128, blue: 0.138),
-        cardGradientBottom: Color(red: 0.082, green: 0.084, blue: 0.092),
-        cardBorderTop: Color.white.opacity(0.12),
-        cardBorderBottom: Color.white.opacity(0.03),
-        cardShadowPrimary: Color.black.opacity(0.70),
-        cardShadowSecondary: Color.black.opacity(0.40),
+    // MARK: - Light Mode: Glacier Ceramic White
+    public static let light = BauhausDialTheme(
+        isDark: false,
+        // Soothing off-white glacier ceramic canvas with subtle ambient gradient
+        canvasBackgroundGradientTop: Color(red: 0.935, green: 0.948, blue: 0.955),
+        canvasBackgroundGradientBottom: Color(red: 0.895, green: 0.912, blue: 0.924),
+        dialAmbientGlow: Color.white.opacity(0.40),
 
-        // Inset digital capsule
-        pillBackgroundTop: Color(red: 0.065, green: 0.068, blue: 0.074),
-        pillBackgroundBottom: Color(red: 0.085, green: 0.088, blue: 0.095),
-        pillBorderTop: Color.white.opacity(0.04),
-        pillBorderBottom: Color.white.opacity(0.08),
-        pillHourText: Color(red: 0.95, green: 0.95, blue: 0.97),
-        pillMinuteText: Color(red: 0.58, green: 0.60, blue: 0.65),
-        pillSecondText: Color(red: 0.55, green: 0.94, blue: 0.15),
-        pillDot: Color(red: 1.0, green: 0.612, blue: 0.035),
-        pillDotGlow: Color(red: 1.0, green: 0.612, blue: 0.035, opacity: 0.60),
+        // Inner hour numerals: Deep charcoal graphite
+        innerNumeralColor: Color(red: 0.120, green: 0.140, blue: 0.160),
+        innerNumeralGlowColor: Color.clear,
+        innerNumeralGlowRadius: 0,
 
-        // AM/PM Dish
-        badgeBackgroundTop: Color(red: 0.065, green: 0.068, blue: 0.074),
-        badgeBackgroundBottom: Color(red: 0.085, green: 0.088, blue: 0.095),
-        badgeBorder: Color.white.opacity(0.06),
-        badgeText: Color(red: 0.55, green: 0.58, blue: 0.64),
+        // 3D tactile batons: Soft ice-cyan ceramic fill with embossed bevels
+        batonFillColor: Color(red: 0.690, green: 0.830, blue: 0.880),
+        batonFillGradientBottom: Color(red: 0.620, green: 0.770, blue: 0.830),
+        batonHighlightColor: Color.white.opacity(0.95),
+        batonShadowColor: Color(red: 0.10, green: 0.18, blue: 0.25, opacity: 0.24),
+        batonGlowColor: Color.clear,
+        batonGlowRadius: 0,
 
-        // Dial spokes and markings
-        spokeLine: Color.white.opacity(0.08),
-        minuteTick: Color(red: 0.32, green: 0.34, blue: 0.38),
-        hourNumeral: Color(red: 0.42, green: 0.44, blue: 0.50),
-        centerDiscFill: Color(red: 0.13, green: 0.135, blue: 0.145),
-        centerDiscBorder: Color.white.opacity(0.18),
-        centerDiscShadow: Color.black.opacity(0.50),
+        // Minute tick marks: Crisp charcoal
+        minuteTickColor: Color(red: 0.140, green: 0.165, blue: 0.195, opacity: 0.92),
 
-        // Hour marker lime capsule: electric neon lime #8cf026
-        hourMarkerCore: Color(red: 0.55, green: 0.94, blue: 0.15),
-        hourMarkerCoreGradientBottom: Color(red: 0.45, green: 0.83, blue: 0.12),
-        hourMarkerFrame: Color(red: 0.17, green: 0.18, blue: 0.20),
-        hourMarkerGlow: Color(red: 0.55, green: 0.94, blue: 0.15, opacity: 0.50),
-        hourMarkerShadow: Color.black.opacity(0.60),
+        // Outer 5-minute numerals: Subtle slate graphite
+        outerNumeralColor: Color(red: 0.200, green: 0.235, blue: 0.270, opacity: 0.88),
 
-        // Hour / Minute hands: sculpted dark titanium pointer with neon lime spine
-        handBodyFillTop: Color(red: 0.20, green: 0.205, blue: 0.22),
-        handBodyFillBottom: Color(red: 0.12, green: 0.125, blue: 0.135),
-        handBodyBorder: Color.white.opacity(0.20),
-        handBodyShadow: Color.black.opacity(0.70),
-        handNeonGroove: Color(red: 0.55, green: 0.94, blue: 0.15),
-        handNeonGlow: Color(red: 0.55, green: 0.94, blue: 0.15, opacity: 0.65),
+        // Hands: Brushed titanium with longitudinal light/shadow split & ice-cyan lume groove
+        handBodyLeftColor: Color(red: 0.91, green: 0.93, blue: 0.95),
+        handBodyRightColor: Color(red: 0.72, green: 0.76, blue: 0.80),
+        handBodyShadowColor: Color(red: 0.08, green: 0.12, blue: 0.18, opacity: 0.22),
+        handGrooveColor: Color(red: 0.710, green: 0.840, blue: 0.890),
+        handGrooveGradientBottom: Color(red: 0.640, green: 0.780, blue: 0.840),
+        handGrooveGlowColor: Color.clear,
+        handBorderColor: Color(red: 0.48, green: 0.54, blue: 0.60),
 
-        // Seconds hand: needle with neon lime tip & glowing aura
-        secondHandNeedle: Color(red: 0.75, green: 0.77, blue: 0.82),
-        secondHandTip: Color(red: 0.55, green: 0.94, blue: 0.15),
-        secondHandTipGlow: Color(red: 0.55, green: 0.94, blue: 0.15, opacity: 0.75),
-        secondHandCap: Color(red: 0.55, green: 0.94, blue: 0.15)
+        // Second hand: Fine needle in crisp steel with soft shadow
+        secondHandColor: Color(red: 0.26, green: 0.30, blue: 0.35),
+        secondHandGlowColor: Color.clear,
+        secondHandShadowColor: Color.black.opacity(0.18),
+
+        // Center Pinion
+        pinionOuterColor: Color(red: 0.88, green: 0.91, blue: 0.94),
+        pinionBorderColor: Color(red: 0.52, green: 0.58, blue: 0.64),
+        pinionCenterHoleColor: Color(red: 0.18, green: 0.21, blue: 0.25),
+        pinionHighlightColor: Color.white.opacity(0.9)
+    )
+
+    // MARK: - Dark Mode: OLED Pitch Black with Swiss BGW9 Cyan Lume
+    public static let dark = BauhausDialTheme(
+        isDark: true,
+        // Deep obsidian OLED black canvas
+        canvasBackgroundGradientTop: Color(red: 0.020, green: 0.024, blue: 0.028),
+        canvasBackgroundGradientBottom: Color(red: 0.008, green: 0.010, blue: 0.014),
+        dialAmbientGlow: Color(red: 0.0, green: 0.95, blue: 1.0, opacity: 0.03),
+
+        // Inner hour numerals: Radiant Swiss BGW9 electric cyan with soft bloom
+        innerNumeralColor: Color(red: 0.0, green: 0.96, blue: 1.0),
+        innerNumeralGlowColor: Color(red: 0.0, green: 0.94, blue: 1.0, opacity: 0.60),
+        innerNumeralGlowRadius: 9.0,
+
+        // 3D tactile batons: Intense glowing Super-LumiNova cyan capsules
+        batonFillColor: Color(red: 0.40, green: 0.98, blue: 1.0),
+        batonFillGradientBottom: Color(red: 0.0, green: 0.88, blue: 0.98),
+        batonHighlightColor: Color.white.opacity(0.95),
+        batonShadowColor: Color.black.opacity(0.70),
+        batonGlowColor: Color(red: 0.0, green: 0.94, blue: 1.0, opacity: 0.75),
+        batonGlowRadius: 12.0,
+
+        // Minute tick marks: Faint deep slate blue (barely visible in the dark)
+        minuteTickColor: Color(red: 0.12, green: 0.18, blue: 0.24, opacity: 0.80),
+
+        // Outer 5-minute numerals: Subtle deep twilight slate cyan
+        outerNumeralColor: Color(red: 0.16, green: 0.30, blue: 0.42, opacity: 0.75),
+
+        // Hands: Sculpted dark titanium frame with glowing BGW9 cyan luminous core
+        handBodyLeftColor: Color(red: 0.18, green: 0.21, blue: 0.26),
+        handBodyRightColor: Color(red: 0.08, green: 0.10, blue: 0.13),
+        handBodyShadowColor: Color.black.opacity(0.85),
+        handGrooveColor: Color(red: 0.0, green: 0.96, blue: 1.0),
+        handGrooveGradientBottom: Color(red: 0.0, green: 0.90, blue: 1.0),
+        handGrooveGlowColor: Color(red: 0.0, green: 0.94, blue: 1.0, opacity: 0.85),
+        handBorderColor: Color.white.opacity(0.25),
+
+        // Second hand: Precision needle in glowing cyan with soft tip aura
+        secondHandColor: Color(red: 0.30, green: 0.92, blue: 1.0),
+        secondHandGlowColor: Color(red: 0.0, green: 0.94, blue: 1.0, opacity: 0.70),
+        secondHandShadowColor: Color.black.opacity(0.80),
+
+        // Center Pinion
+        pinionOuterColor: Color(red: 0.18, green: 0.22, blue: 0.28),
+        pinionBorderColor: Color(red: 0.0, green: 0.90, blue: 1.0, opacity: 0.50),
+        pinionCenterHoleColor: Color.black,
+        pinionHighlightColor: Color.white.opacity(0.35)
     )
 }

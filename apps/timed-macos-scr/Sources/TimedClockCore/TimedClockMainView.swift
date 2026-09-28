@@ -1,728 +1,653 @@
 import SwiftUI
 
-/// Full-Screen Realistic 3D Watch Face macOS Screen Saver
-/// Features authentic horological proportions, multi-tier brushed titanium bezel,
-/// angled rehaut with ambient occlusion, pristine symmetrical obsidian dial,
-/// 3D faceted hands with multi-level depth shadows, Super-LumiNova glowing batons,
-/// precision minute chapter ring, curvature-aligned Swiss typography,
-/// and external floating digital clock HUD outside the ring at top-right.
+/// Borderless Bauhaus Minimalist Horological Clock macOS Screen Saver
+/// Authentic replication of the Bauhaus Clock by Atilla Taşkıran (bauhausclock.com).
+/// 
+/// Exact Horological Geometry:
+/// - Outer 5-minute numerals (60, 05, 10, ... 55) tangentially aligned with circular Bauhaus glyphs
+/// - Precision minute track (4 ticks between each hour baton) sharing exact outer perimeter with batons
+/// - 3D embossed tactile pill batons at each hour
+/// - Inner upright Bauhaus rounded hour numerals (1–12)
+/// - Sculpted pencil hands with longitudinal 3D chamfers, luminous central channels & continuous 60 FPS sweeping second hand
+/// - Fully adaptive Light (Glacier White) and Dark (Swiss BGW9 Cyan Lume) modes
 public struct TimedClockMainView: View {
     @ObservedObject public var model: TimedClockModel
-    public let palette: TimedColorPalette
+    public var explicitTheme: BauhausDialTheme?
 
-    public init(model: TimedClockModel = .shared, palette: TimedColorPalette = .shared) {
+    @Environment(\.colorScheme) private var systemColorScheme
+
+    public init(model: TimedClockModel = .shared, theme: BauhausDialTheme? = nil) {
         self.model = model
-        self.palette = palette
+        self.explicitTheme = theme
+    }
+
+    public var theme: BauhausDialTheme {
+        if let explicit = explicitTheme { return explicit }
+        return systemColorScheme == .dark ? .dark : .light
     }
 
     public var body: some View {
         GeometryReader { proxy in
             let w = proxy.size.width
             let h = proxy.size.height
-
-            // The watch itself is FULL SCREEN:
-            // Sized to commandingly occupy 97% of the screen's smaller dimension.
             let minDim = min(w, h)
             let center = CGPoint(x: w / 2.0, y: h / 2.0)
 
-            // Watch case & bezel geometry
-            let caseRadius = minDim * 0.485
-            let bezelOuterRadius = caseRadius * 0.990
-            let bezelInnerRadius = caseRadius * 0.925
-            let rehautRadius = caseRadius * 0.865
-            let dialRadius = rehautRadius
-            let hubRadius = dialRadius * 0.080
+            // Empirical horological proportions derived from reference video
+            let outerRadius = minDim * 0.405
+
+            // Batons & Minute Track share exact outer perimeter
+            let dialPerimeterRadius = outerRadius * 0.885
+            let batonLength = outerRadius * 0.145
+            let batonWidth = outerRadius * 0.030
+            let batonCenterRadius = dialPerimeterRadius - batonLength / 2.0
+
+            let minuteTickOuter = dialPerimeterRadius
+            let minuteTickInner = dialPerimeterRadius - batonLength * 0.44
+            let minuteTickWidth = max(1.1, outerRadius * 0.0055)
+
+            // Numerals
+            let innerHourRadius = outerRadius * 0.530
+            let innerHourFontSize = outerRadius * 0.106
+            let outerFiveMinRadius = outerRadius * 0.965
+            let outerFiveMinFontSize = outerRadius * 0.054
+
+            // Hands
+            let hourHandLength = outerRadius * 0.520
+            let hourHandWidth = outerRadius * 0.038
+            let minuteHandLength = outerRadius * 0.735
+            let minuteHandWidth = outerRadius * 0.028
+            let secondHandLength = dialPerimeterRadius * 0.985
+            let secondHandTail = outerRadius * 0.175
+            let pinionRadius = outerRadius * 0.036
+            let pinionHoleRadius = outerRadius * 0.012
 
             ZStack {
-                // 1. Full Screen Deep OLED Obsidian Backdrop
-                LinearGradient(
-                    colors: [palette.cardGradientBottom, Color.black],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                // 1. Edge-to-Edge Canvas Background
+                canvasBackground(width: w, height: h)
 
-                // 2. Corner Studio Vignettes
-                studioCornerVignettes(width: w, height: h, minDim: minDim)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
+                // 2. Dial Ambient Center Glow (Soft vignette)
+                dialAmbientLighting(center: center, radius: outerRadius * 1.25)
 
-                // 3. 3D Watch Case & Brushed Titanium Bezel
-                watchCaseAndBezel(
+                // 3. Tier 3: Minute Track Ticks
+                minuteTrackTicks(
                     center: center,
-                    caseRadius: caseRadius,
-                    bezelOuterRadius: bezelOuterRadius,
-                    bezelInnerRadius: bezelInnerRadius,
-                    rehautRadius: rehautRadius
+                    innerRadius: minuteTickInner,
+                    outerRadius: minuteTickOuter,
+                    lineWidth: minuteTickWidth
                 )
 
-                // 4. Dial Surface Plate (Pure Symmetrical Obsidian Radial Gradient)
-                dialPlate(
+                // 4. Tier 2: 3D Embossed Hour Batons (12 radial pills)
+                hourBatons(
                     center: center,
-                    dialRadius: dialRadius
+                    centerRadius: batonCenterRadius,
+                    length: batonLength,
+                    width: batonWidth
                 )
 
-                // 5. Applied 3D Neon Capsule Indices & Curvature-Aligned Numerals (All 12 hours)
-                dialMarkersAndNumerals(center: center, dialRadius: dialRadius, hubRadius: hubRadius)
+                // 5. Tier 1: Inner Upright Hour Numerals (1–12)
+                innerHourNumerals(
+                    center: center,
+                    radius: innerHourRadius,
+                    fontSize: innerHourFontSize
+                )
 
-                // 6. 3D Faceted Hands Layer (Hour hand, Minute hand, Sweeping Second hand, Center Hub)
-                hands3DLayer(center: center, dialRadius: dialRadius, hubRadius: hubRadius)
+                // 6. Tier 4: Outer Tangentially Aligned 5-Minute Numerals (60, 05, 10, ... 55)
+                outerFiveMinNumerals(
+                    center: center,
+                    radius: outerFiveMinRadius,
+                    fontSize: outerFiveMinFontSize
+                )
 
-                // 7. Curved Sapphire Crystal Glass Reflection Sheen (Silky, seamless AR coating)
-                sapphireCrystalReflection(center: center, dialRadius: dialRadius)
-                    .allowsHitTesting(false)
+                // 7. Center Pinion Washer & Collet (beneath hands)
+                centerPinion(
+                    radius: pinionRadius,
+                    holeRadius: pinionHoleRadius,
+                    center: center
+                )
 
-                // 8. Outside the Ring: Floating Digital Clock HUD at Top-Right
-                topRightDigitalClock(width: w, height: h, minDim: minDim)
-                    .allowsHitTesting(false)
+                // 8. Hour Hand (3D Faceted pencil hand with luminous groove)
+                WatchHandView(
+                    length: hourHandLength,
+                    baseWidth: hourHandWidth,
+                    tipWidth: hourHandWidth * 0.65,
+                    grooveWidth: hourHandWidth * 0.38,
+                    grooveLength: hourHandLength * 0.70,
+                    theme: theme,
+                    degrees: model.hourHandDegrees
+                )
+                .position(center)
+
+                // 9. Minute Hand (3D Faceted pencil hand with luminous groove)
+                WatchHandView(
+                    length: minuteHandLength,
+                    baseWidth: minuteHandWidth,
+                    tipWidth: minuteHandWidth * 0.65,
+                    grooveWidth: minuteHandWidth * 0.36,
+                    grooveLength: minuteHandLength * 0.80,
+                    theme: theme,
+                    degrees: model.minuteHandDegrees
+                )
+                .position(center)
+
+                // 10. Silky Sweeping Second Hand (60 FPS continuous)
+                SweepingSecondHandView(
+                    length: secondHandLength,
+                    tail: secondHandTail,
+                    needleWidth: max(1.3, outerRadius * 0.0055),
+                    capRadius: max(3.5, outerRadius * 0.018),
+                    theme: theme,
+                    degrees: model.secondHandDegrees
+                )
+                .position(center)
             }
             .frame(width: w, height: h)
         }
         .ignoresSafeArea()
     }
 
-    // MARK: - 1. Studio Corner Vignettes
-    private func studioCornerVignettes(width: CGFloat, height: CGFloat, minDim: CGFloat) -> some View {
-        Canvas { context, size in
-            let vigRadius = minDim * 0.75
-            let grad = Gradient(colors: [Color.black.opacity(0.88), Color.clear])
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .radialGradient(grad, center: CGPoint(x: 0, y: 0), startRadius: 0, endRadius: vigRadius))
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .radialGradient(grad, center: CGPoint(x: size.width, y: 0), startRadius: 0, endRadius: vigRadius))
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .radialGradient(grad, center: CGPoint(x: 0, y: size.height), startRadius: 0, endRadius: vigRadius))
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .radialGradient(grad, center: CGPoint(x: size.width, y: size.height), startRadius: 0, endRadius: vigRadius))
-        }
+    // MARK: - 1. Canvas Background
+    private func canvasBackground(width: CGFloat, height: CGFloat) -> some View {
+        LinearGradient(
+            colors: [
+                theme.canvasBackgroundGradientTop,
+                theme.canvasBackgroundGradientBottom
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
     }
 
-    // MARK: - 2. 3D Watch Case & Brushed Titanium Bezel
-    private func watchCaseAndBezel(
+    // MARK: - 2. Dial Ambient Lighting
+    private func dialAmbientLighting(center: CGPoint, radius: CGFloat) -> some View {
+        RadialGradient(
+            colors: [
+                theme.dialAmbientGlow,
+                Color.clear
+            ],
+            center: .center,
+            startRadius: 0,
+            endRadius: radius
+        )
+        .allowsHitTesting(false)
+    }
+
+    // MARK: - 3. Tier 3: Minute Track Ticks
+    private func minuteTrackTicks(
         center: CGPoint,
-        caseRadius: CGFloat,
-        bezelOuterRadius: CGFloat,
-        bezelInnerRadius: CGFloat,
-        rehautRadius: CGFloat
+        innerRadius: CGFloat,
+        outerRadius: CGFloat,
+        lineWidth: CGFloat
     ) -> some View {
-        ZStack {
-            // Case Ambient Elevation Shadow onto OLED Backdrop
-            Circle()
-                .fill(Color.black.opacity(0.92))
-                .frame(width: caseRadius * 2.0, height: caseRadius * 2.0)
-                .shadow(color: Color.black.opacity(0.95), radius: caseRadius * 0.16, x: 0, y: caseRadius * 0.08)
-                .position(x: center.x, y: center.y)
-
-            // Outer Brushed Titanium Bezel Ring with Directional 135° Lighting
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.30, green: 0.32, blue: 0.37), // Top-left specular sheen
-                            Color(red: 0.19, green: 0.20, blue: 0.23),
-                            Color(red: 0.12, green: 0.13, blue: 0.15),
-                            Color(red: 0.07, green: 0.08, blue: 0.09)  // Bottom-right shadow
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: bezelOuterRadius * 2.0, height: bezelOuterRadius * 2.0)
-                // Diamond-cut outer chamfered edge highlight
-                .overlay(
-                    Circle().stroke(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.45), Color.white.opacity(0.05)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-                )
-                .position(x: center.x, y: center.y)
-
-            // Inner Stepped Bezel Groove
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.07, green: 0.08, blue: 0.09),
-                            Color(red: 0.16, green: 0.17, blue: 0.20)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: bezelInnerRadius * 2.0, height: bezelInnerRadius * 2.0)
-                .position(x: center.x, y: center.y)
-
-            // 3D Angled Rehaut Wall (Conical Inner Wall Casting Ambient Occlusion Shadow onto Dial)
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.black.opacity(0.88), // Deep shadow under top-left rehaut
-                            Color(red: 0.09, green: 0.10, blue: 0.12),
-                            Color(red: 0.16, green: 0.17, blue: 0.20)  // Reflected rim light on bottom-right
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: rehautRadius * 2.0, height: rehautRadius * 2.0)
-                .overlay(
-                    Circle().stroke(
-                        LinearGradient(
-                            colors: [Color.black.opacity(0.92), Color.white.opacity(0.20)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.8
-                    )
-                )
-                .position(x: center.x, y: center.y)
-        }
-    }
-
-    // MARK: - 3. Dial Plate (Pure Symmetrical Obsidian Dial)
-    private func dialPlate(
-        center: CGPoint,
-        dialRadius: CGFloat
-    ) -> some View {
-        Circle()
-            .fill(
-                RadialGradient(
-                    colors: [
-                        Color(red: 0.125, green: 0.130, blue: 0.145), // Subtle upper center highlight
-                        Color(red: 0.082, green: 0.085, blue: 0.095),
-                        Color(red: 0.040, green: 0.042, blue: 0.048)  // Deep perimeter rim
-                    ],
-                    center: UnitPoint(x: 0.42, y: 0.38),
-                    startRadius: 0,
-                    endRadius: dialRadius * 1.02
-                )
-            )
-            .frame(width: dialRadius * 2.0, height: dialRadius * 2.0)
-            .position(x: center.x, y: center.y)
-    }
-
-    // MARK: - 4. Applied 3D Indices & Curvature-Aligned Swiss Numerals
-    private func dialMarkersAndNumerals(center: CGPoint, dialRadius: CGFloat, hubRadius: CGFloat) -> some View {
-        Canvas { context, canvasSize in
-            let dialR = dialRadius
-            let hubR = hubRadius
-
-            // Tier 1: Radial Spoke Hairlines milled into the dial surface (All 12 hours)
-            for hour in 0..<12 {
-                let hourDegrees = Double(hour) * 30.0
-                let angle = Angle.degrees(hourDegrees - 90.0)
-
-                let startPoint = CGPoint(
-                    x: center.x + CGFloat(cos(angle.radians)) * (hubR + dialR * 0.020),
-                    y: center.y + CGFloat(sin(angle.radians)) * (hubR + dialR * 0.020)
-                )
-                let endPoint = CGPoint(
-                    x: center.x + CGFloat(cos(angle.radians)) * (dialR * 0.730),
-                    y: center.y + CGFloat(sin(angle.radians)) * (dialR * 0.730)
-                )
-
-                var spokePath = Path()
-                spokePath.move(to: startPoint)
-                spokePath.addLine(to: endPoint)
-                context.stroke(spokePath, with: .color(palette.spokeLine), lineWidth: 0.9)
-            }
-
-            // Tier 2: 3D Applied Super-LumiNova Neon Capsule Hour Indices (All 12 hours)
-            let batonCenterRadius = dialR * 0.635
-            let markerLength = dialR * 0.125
-            let markerWidth = dialR * 0.026
-            let markerRadius = markerWidth / 2.0
-
-            for hour in 0..<12 {
-                let hourDegrees = Double(hour) * 30.0
-                let angle = Angle.degrees(hourDegrees - 90.0)
-
-                let markerCenter = CGPoint(
-                    x: center.x + CGFloat(cos(angle.radians)) * batonCenterRadius,
-                    y: center.y + CGFloat(sin(angle.radians)) * batonCenterRadius
-                )
-
-                var markerContext = context
-                markerContext.translateBy(x: markerCenter.x, y: markerCenter.y)
-                markerContext.rotate(by: Angle.degrees(hourDegrees))
-
-                let capsuleRect = CGRect(
-                    x: -markerWidth / 2.0,
-                    y: -markerLength / 2.0,
-                    width: markerWidth,
-                    height: markerLength
-                )
-
-                // 3D Metallic Bezel Frame (Polished chamfer)
-                let frameRect = capsuleRect.insetBy(dx: -dialR * 0.005, dy: -dialR * 0.005)
-                let framePath = Path(roundedRect: frameRect, cornerRadius: markerRadius + dialR * 0.005)
-                markerContext.fill(framePath, with: .color(Color(red: 0.16, green: 0.17, blue: 0.20)))
-                markerContext.stroke(framePath, with: .color(Color.white.opacity(0.30)), lineWidth: 0.9)
-
-                // Ambient Super-LumiNova Glow Aura onto surrounding dial
-                let glowRect = capsuleRect.insetBy(dx: -dialR * 0.010, dy: -dialR * 0.010)
-                let glowPath = Path(roundedRect: glowRect, cornerRadius: markerRadius + dialR * 0.010)
-                markerContext.fill(glowPath, with: .color(Color(red: 0.55, green: 0.95, blue: 0.15, opacity: 0.25)))
-
-                // Glowing Super-LumiNova Core
-                let innerPath = Path(roundedRect: capsuleRect, cornerRadius: markerRadius)
-                let neonGradient = Gradient(colors: [
-                    Color(red: 0.65, green: 1.0, blue: 0.22),
-                    Color(red: 0.48, green: 0.92, blue: 0.12)
-                ])
-                markerContext.fill(
-                    innerPath,
-                    with: .linearGradient(
-                        neonGradient,
-                        startPoint: CGPoint(x: 0, y: -markerLength / 2.0),
-                        endPoint: CGPoint(x: 0, y: markerLength / 2.0)
-                    )
-                )
-            }
-
-            // Tier 3: 60 Precision Minute Subdivision Ticks along Chapter Ring
+        Canvas { context, _ in
             for m in 0..<60 {
-                let angle = Angle.degrees(Double(m) * 6.0 - 90.0)
-                let isHourPosition = (m % 5 == 0)
+                // Skip the hour marks where the 12 batons sit
+                if m % 5 == 0 { continue }
 
-                let tickInnerR = isHourPosition ? (dialR * 0.740) : (dialR * 0.760)
-                let tickOuterR = dialR * 0.790
+                let angleDeg = Double(m) * 6.0
+                let rad = (angleDeg - 90.0) * .pi / 180.0
+                let cosA = cos(rad)
+                let sinA = sin(rad)
 
-                let startPoint = CGPoint(
-                    x: center.x + CGFloat(cos(angle.radians)) * tickInnerR,
-                    y: center.y + CGFloat(sin(angle.radians)) * tickInnerR
+                let p1 = CGPoint(
+                    x: center.x + cosA * innerRadius,
+                    y: center.y + sinA * innerRadius
                 )
-                let endPoint = CGPoint(
-                    x: center.x + CGFloat(cos(angle.radians)) * tickOuterR,
-                    y: center.y + CGFloat(sin(angle.radians)) * tickOuterR
+                let p2 = CGPoint(
+                    x: center.x + cosA * outerRadius,
+                    y: center.y + sinA * outerRadius
                 )
 
-                var tickPath = Path()
-                tickPath.move(to: startPoint)
-                tickPath.addLine(to: endPoint)
-
-                let strokeColor = isHourPosition ? Color(red: 0.55, green: 0.58, blue: 0.65) : Color(red: 0.30, green: 0.32, blue: 0.38)
-                let strokeWidth = isHourPosition ? dialR * 0.008 : dialR * 0.0048
+                var path = Path()
+                path.move(to: p1)
+                path.addLine(to: p2)
 
                 context.stroke(
-                    tickPath,
-                    with: .color(strokeColor),
-                    style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round)
+                    path,
+                    with: .color(theme.minuteTickColor),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
             }
-
-            // Tier 4: Precision Swiss Numerals (Curvature-Aligned SF Pro Display)
-            let numeralRadius = dialR * 0.860
-            let numFontSize = dialR * 0.062
-
-            for hour in 1...12 {
-                let text = "\(hour)"
-                let hourDegrees = Double(hour) * 30.0
-                let angle = Angle.degrees(hourDegrees - 90.0)
-
-                let numeralPos = CGPoint(
-                    x: center.x + CGFloat(cos(angle.radians)) * numeralRadius,
-                    y: center.y + CGFloat(sin(angle.radians)) * numeralRadius
-                )
-
-                var numContext = context
-                numContext.translateBy(x: numeralPos.x, y: numeralPos.y)
-
-                var rotAngle: Double = 0.0
-                if hour == 12 || hour == 1 || hour == 2 || hour == 10 || hour == 11 {
-                    rotAngle = hourDegrees <= 180 ? hourDegrees : hourDegrees - 360
-                } else if hour == 4 || hour == 5 || hour == 6 || hour == 7 || hour == 8 {
-                    rotAngle = hourDegrees - 180.0
-                } else if hour == 3 {
-                    rotAngle = 90.0
-                } else if hour == 9 {
-                    rotAngle = -90.0
-                }
-                numContext.rotate(by: .degrees(rotAngle))
-
-                let resolvedText = numContext.resolve(
-                    Text(text)
-                        .font(.system(size: numFontSize, weight: .medium, design: .default).monospacedDigit())
-                        .foregroundColor(Color(red: 0.80, green: 0.83, blue: 0.90))
-                )
-
-                numContext.draw(resolvedText, at: .zero, anchor: .center)
-            }
         }
+        .allowsHitTesting(false)
     }
 
-    // MARK: - 5. 3D Faceted Hands Layer with Multi-Level Depth Shadows
-    private func hands3DLayer(center: CGPoint, dialRadius: CGFloat, hubRadius: CGFloat) -> some View {
+    // MARK: - 4. Tier 2: 3D Embossed Hour Batons (12 pills)
+    private func hourBatons(
+        center: CGPoint,
+        centerRadius: CGFloat,
+        length: CGFloat,
+        width: CGFloat
+    ) -> some View {
         ZStack {
-            // --- Plane 1: Sculpted 3D Hour Hand (Lowest plane above dial) ---
-            let hourLength = dialRadius * 0.58
-            FacetedClockHand(
-                length: hourLength,
-                baseWidth: dialRadius * 0.076,
-                tipWidth: dialRadius * 0.026,
-                palette: palette,
-                dialRadius: dialRadius
-            )
-            .shadow(color: Color.black.opacity(0.85), radius: dialRadius * 0.028, x: dialRadius * 0.012, y: dialRadius * 0.018)
-            .rotationEffect(.degrees(model.hourHandDegrees), anchor: .bottom)
-            .position(x: center.x, y: center.y - hourLength / 2.0)
+            ForEach(0..<12, id: \.self) { i in
+                let angle = Double(i) * 30.0
 
-            // --- Plane 2: Sculpted 3D Minute Hand (Higher plane, longer cast shadow) ---
-            let minuteLength = dialRadius * 0.82
-            FacetedClockHand(
-                length: minuteLength,
-                baseWidth: dialRadius * 0.052,
-                tipWidth: dialRadius * 0.018,
-                palette: palette,
-                dialRadius: dialRadius
-            )
-            .shadow(color: Color.black.opacity(0.75), radius: dialRadius * 0.040, x: dialRadius * 0.018, y: dialRadius * 0.026)
-            .rotationEffect(.degrees(model.minuteHandDegrees), anchor: .bottom)
-            .position(x: center.x, y: center.y - minuteLength / 2.0)
+                ZStack {
+                    if theme.isDark {
+                        // Dark Mode: Radiant Super-LumiNova BGW9 Cyan
+                        // 1. Ambient Bloom
+                        Capsule()
+                            .fill(theme.batonGlowColor)
+                            .frame(width: width + 5, height: length + 5)
+                            .blur(radius: theme.batonGlowRadius)
 
-            // --- Plane 3: Live Sweeping Seconds Hand (Highest plane) ---
-            LiveSecondHand3D(
-                dialRadius: dialRadius,
-                palette: palette
-            )
-            .shadow(color: Color.black.opacity(0.65), radius: dialRadius * 0.030, x: dialRadius * 0.024, y: dialRadius * 0.034)
-            .rotationEffect(.degrees(model.secondHandDegrees), anchor: .center)
-            .position(x: center.x, y: center.y)
-
-            // --- Multi-Tier 3D Center Pinion Cap ---
-            centerPinion3D(hubRadius: hubRadius, dialRadius: dialRadius)
-                .position(x: center.x, y: center.y)
-        }
-    }
-
-    // MARK: - Multi-Tier 3D Center Pinion Cap
-    private func centerPinion3D(hubRadius: CGFloat, dialRadius: CGFloat) -> some View {
-        ZStack {
-            // Tier 1: Base Turned Metal Ring
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [Color(red: 0.32, green: 0.34, blue: 0.38), Color(red: 0.12, green: 0.13, blue: 0.15)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: hubRadius * 2.0, height: hubRadius * 2.0)
-                .overlay(Circle().stroke(Color.white.opacity(0.35), lineWidth: 1.0))
-                .shadow(color: Color.black.opacity(0.85), radius: dialRadius * 0.025, x: dialRadius * 0.008, y: dialRadius * 0.012)
-
-            // Tier 2: Chamfered Polished Bevel
-            Circle()
-                .fill(Color(red: 0.18, green: 0.19, blue: 0.22))
-                .frame(width: hubRadius * 1.35, height: hubRadius * 1.35)
-
-            // Tier 3: Domed Super-LumiNova Neon Jewel Cap
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color(red: 0.70, green: 1.0, blue: 0.25), Color(red: 0.45, green: 0.85, blue: 0.12)],
-                        center: UnitPoint(x: 0.35, y: 0.35),
-                        startRadius: 0,
-                        endRadius: hubRadius * 0.75
-                    )
-                )
-                .frame(width: hubRadius * 0.75, height: hubRadius * 0.75)
-                .shadow(color: palette.secondHandTipGlow, radius: dialRadius * 0.015, x: 0, y: 0)
-        }
-    }
-
-    // MARK: - 7. Curved Sapphire Crystal Reflection (Seamless Optical Anti-Reflective Sheen)
-    private func sapphireCrystalReflection(center: CGPoint, dialRadius: CGFloat) -> some View {
-        ZStack {
-            // Optical anti-reflective coating sheen across entire crystal dome (zero harsh cuts)
-            Circle()
-                .fill(
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color.white.opacity(0.045), location: 0.0),
-                            .init(color: Color.cyan.opacity(0.020), location: 0.22),
-                            .init(color: Color.clear, location: 0.52),
-                            .init(color: Color.white.opacity(0.015), location: 0.82),
-                            .init(color: Color.clear, location: 1.0)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: dialRadius * 2.0, height: dialRadius * 2.0)
-                .position(x: center.x, y: center.y)
-
-            // Ultra-subtle upper rim specular highlight
-            Circle()
-                .stroke(
-                    LinearGradient(
-                        stops: [
-                            .init(color: Color.white.opacity(0.35), location: 0.0),
-                            .init(color: Color.cyan.opacity(0.15), location: 0.15),
-                            .init(color: Color.clear, location: 0.38)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.2
-                )
-                .frame(width: dialRadius * 1.99, height: dialRadius * 1.99)
-                .position(x: center.x, y: center.y)
-        }
-    }
-
-    // MARK: - 8. Top-Right Floating Digital Clock HUD (Outside the Ring)
-    private func topRightDigitalClock(width: CGFloat, height: CGFloat, minDim: CGFloat) -> some View {
-        let pillHeight = max(40.0, minDim * 0.052)
-
-        return VStack {
-            HStack {
-                Spacer()
-
-                HStack(spacing: pillHeight * 0.20) {
-                    // Floating Digital Time Capsule Pill
-                    HStack(spacing: pillHeight * 0.065) {
-                        // Hours with Slashed Zero
-                        HStack(spacing: pillHeight * 0.02) {
-                            ForEach(Array(model.hourString.enumerated()), id: \.offset) { _, char in
-                                DigitGlyph(char: char, fontSize: pillHeight * 0.50, color: Color(red: 0.95, green: 0.96, blue: 0.98), isBold: false)
-                            }
-                        }
-
-                        // Colon
-                        Text(":")
-                            .font(.system(size: pillHeight * 0.44, weight: .bold, design: .rounded))
-                            .foregroundColor(Color(red: 0.55, green: 0.58, blue: 0.65))
-
-                        // Minutes with Slashed Zero
-                        HStack(spacing: pillHeight * 0.02) {
-                            ForEach(Array(model.minuteString.enumerated()), id: \.offset) { _, char in
-                                DigitGlyph(char: char, fontSize: pillHeight * 0.50, color: Color(red: 0.72, green: 0.75, blue: 0.82), isBold: true)
-                            }
-                        }
-
-                        // Glowing Amber Dot
-                        Circle()
-                            .fill(palette.pillDot)
-                            .frame(width: pillHeight * 0.18, height: pillHeight * 0.18)
-                            .shadow(color: palette.pillDotGlow, radius: pillHeight * 0.16, x: 0, y: 0)
-                            .padding(.horizontal, pillHeight * 0.03)
-
-                        // Live Seconds in Electric Neon Lime
-                        HStack(spacing: pillHeight * 0.02) {
-                            ForEach(Array(model.secondString.enumerated()), id: \.offset) { _, char in
-                                DigitGlyph(char: char, fontSize: pillHeight * 0.48, color: palette.pillSecondText, isBold: true)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, pillHeight * 0.40)
-                    .frame(height: pillHeight)
-                    .background(
-                        Capsule(style: .continuous)
+                        // 2. Luminous Body
+                        Capsule()
                             .fill(
                                 LinearGradient(
-                                    colors: [
-                                        Color(red: 0.13, green: 0.14, blue: 0.16),
-                                        Color(red: 0.06, green: 0.065, blue: 0.075)
-                                    ],
+                                    colors: [theme.batonFillColor, theme.batonFillGradientBottom],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(width: width, height: length)
+                            .shadow(color: theme.batonGlowColor, radius: 4)
+
+                        // 3. Bright Core
+                        Capsule()
+                            .fill(Color.white.opacity(0.85))
+                            .frame(width: max(1.2, width * 0.35), height: length * 0.75)
+                            .blur(radius: 0.8)
+                    } else {
+                        // Light Mode: Tactile 3D Embossed Ceramic Pill
+                        // 1. Cast Drop Shadow (Bottom-Right)
+                        Capsule()
+                            .fill(theme.batonShadowColor)
+                            .frame(width: width, height: length)
+                            .offset(x: 1.4, y: 1.8)
+                            .blur(radius: 1.5)
+
+                        // 2. Beveled Highlight Rim (Top-Left)
+                        Capsule()
+                            .fill(theme.batonHighlightColor)
+                            .frame(width: width + 0.8, height: length + 0.8)
+                            .offset(x: -0.8, y: -0.8)
+
+                        // 3. Ceramic Baton Body
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [theme.batonFillColor, theme.batonFillGradientBottom],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
-                    )
-                    .overlay(
-                        Capsule(style: .continuous)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [Color.white.opacity(0.24), Color.white.opacity(0.04)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1.0
-                            )
-                    )
-                    .shadow(color: Color.black.opacity(0.65), radius: pillHeight * 0.35, x: 0, y: pillHeight * 0.15)
+                            .frame(width: width, height: length)
 
-                    // Companion AM/PM Circular Indicator Dish
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color(red: 0.13, green: 0.14, blue: 0.16),
-                                        Color(red: 0.06, green: 0.065, blue: 0.075)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [Color.white.opacity(0.24), Color.white.opacity(0.04)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1.0
-                                    )
-                            )
-                            .shadow(color: Color.black.opacity(0.65), radius: pillHeight * 0.35, x: 0, y: pillHeight * 0.15)
-
-                        Text(model.amPmLetter)
-                            .font(.system(size: pillHeight * 0.48, weight: .medium, design: .default))
-                            .foregroundColor(Color(red: 0.70, green: 0.74, blue: 0.82))
+                        // 4. Subtle Inner Highlight Glint
+                        Capsule()
+                            .stroke(theme.batonHighlightColor.opacity(0.70), lineWidth: 0.6)
+                            .frame(width: width - 0.6, height: length - 0.6)
                     }
-                    .frame(width: pillHeight, height: pillHeight)
                 }
-                .padding(.top, max(28, height * 0.042))
-                .padding(.trailing, max(36, width * 0.042))
+                .offset(y: -centerRadius)
+                .rotationEffect(.degrees(angle))
             }
-
-            Spacer()
         }
+        .position(center)
+        .allowsHitTesting(false)
     }
-}
 
-// MARK: - 3D Faceted Clock Hand Component (Illuminated & Shaded Longitudinal Flanks)
-public struct FacetedClockHand: View {
-    public let length: CGFloat
-    public let baseWidth: CGFloat
-    public let tipWidth: CGFloat
-    public let palette: TimedColorPalette
-    public let dialRadius: CGFloat
-
-    public var body: some View {
+    // MARK: - 5. Tier 1: Inner Upright Hour Numerals (1–12)
+    private func innerHourNumerals(
+        center: CGPoint,
+        radius: CGFloat,
+        fontSize: CGFloat
+    ) -> some View {
         ZStack {
-            // 3D Split Faceted Hand Body:
-            // Left flank illuminated by 135° light source, right flank in shadow
-            HStack(spacing: 0) {
-                // Left Illuminated Flank
-                HalfHandShape(baseHalf: baseWidth / 2.0, tipHalf: tipWidth / 2.0, length: length, isLeft: true)
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(red: 0.32, green: 0.34, blue: 0.38), Color(red: 0.20, green: 0.21, blue: 0.24)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: baseWidth / 2.0, height: length)
+            ForEach(1...12, id: \.self) { hour in
+                let hourAngleDeg = Double(hour) * 30.0
+                let rad = (hourAngleDeg - 90.0) * .pi / 180.0
+                let x = center.x + cos(rad) * radius
+                let y = center.y + sin(rad) * radius
 
-                // Right Shaded Flank
-                HalfHandShape(baseHalf: baseWidth / 2.0, tipHalf: tipWidth / 2.0, length: length, isLeft: false)
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(red: 0.15, green: 0.16, blue: 0.18), Color(red: 0.08, green: 0.09, blue: 0.10)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: baseWidth / 2.0, height: length)
+                Text("\(hour)")
+                    .font(.system(size: fontSize, weight: .regular, design: .rounded))
+                    .foregroundColor(theme.innerNumeralColor)
+                    .if(theme.isDark) { view in
+                        view
+                            .shadow(color: theme.innerNumeralGlowColor, radius: theme.innerNumeralGlowRadius)
+                            .shadow(color: theme.innerNumeralGlowColor.opacity(0.8), radius: 2)
+                    }
+                    .position(x: x, y: y)
             }
-            .frame(width: baseWidth, height: length)
-
-            // Center Razor Ridge Line
-            Rectangle()
-                .fill(Color.white.opacity(0.35))
-                .frame(width: 0.9, height: length * 0.88)
-                .offset(y: -length * 0.04)
-
-            // Recessed Luminous Super-LumiNova Lime Channel
-            let grooveWidth = baseWidth * 0.22
-            let grooveLength = length * 0.56
-            Capsule(style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [Color(red: 0.65, green: 1.0, blue: 0.22), Color(red: 0.48, green: 0.90, blue: 0.12)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .frame(width: grooveWidth, height: grooveLength)
-                .shadow(color: palette.handNeonGlow, radius: dialRadius * 0.016, x: 0, y: 0)
-                .offset(y: -length * 0.06)
         }
-        .frame(width: baseWidth * 2.0, height: length)
+        .allowsHitTesting(false)
     }
-}
 
-// MARK: - Longitudinal Half Hand Shape for 3D Facet Rendering
-public struct HalfHandShape: Shape {
-    public let baseHalf: CGFloat
-    public let tipHalf: CGFloat
-    public let length: CGFloat
-    public let isLeft: Bool
+    // MARK: - 6. Tier 4: Outer Tangentially Aligned 5-Minute Numerals
+    private func outerFiveMinNumerals(
+        center: CGPoint,
+        radius: CGFloat,
+        fontSize: CGFloat
+    ) -> some View {
+        let labels = ["60", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"]
 
-    public func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let tipPointHeight = tipHalf * 1.5
+        return ZStack {
+            ForEach(0..<12, id: \.self) { i in
+                let hourDeg = Double(i) * 30.0
+                let rad = (hourDeg - 90.0) * .pi / 180.0
+                let x = center.x + cos(rad) * radius
+                let y = center.y + sin(rad) * radius
 
-        if isLeft {
-            path.move(to: CGPoint(x: rect.maxX, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.maxX - tipHalf, y: rect.minY + tipPointHeight))
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-            path.closeSubpath()
+                let rotationAngle = rotationForFiveMin(hourDeg: hourDeg)
+
+                Text(labels[i])
+                    // Using .rounded without monospacedDigit gives authentic circular 0, 6, 8, 9
+                    .font(.system(size: fontSize, weight: .regular, design: .rounded))
+                    .foregroundColor(theme.outerNumeralColor)
+                    .rotationEffect(.degrees(rotationAngle))
+                    .position(x: x, y: y)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func rotationForFiveMin(hourDeg: Double) -> Double {
+        if hourDeg > 90.0 && hourDeg < 270.0 {
+            return hourDeg - 180.0
+        } else if hourDeg >= 270.0 {
+            return hourDeg - 360.0
         } else {
-            path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.minX + tipHalf, y: rect.minY + tipPointHeight))
-            path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
-            path.closeSubpath()
+            return hourDeg
         }
+    }
 
+    // MARK: - Center Pinion Washer & Collet
+    private func centerPinion(
+        radius: CGFloat,
+        holeRadius: CGFloat,
+        center: CGPoint
+    ) -> some View {
+        ZStack {
+            // Outer Pinion Washer with subtle drop shadow
+            Circle()
+                .fill(theme.pinionOuterColor)
+                .frame(width: radius * 2.0, height: radius * 2.0)
+                .shadow(color: Color.black.opacity(0.25), radius: 2.0, x: 1.0, y: 1.5)
+
+            // Outer Pinion Highlight Rim
+            Circle()
+                .stroke(theme.pinionBorderColor, lineWidth: 0.8)
+                .frame(width: radius * 2.0, height: radius * 2.0)
+
+            // Center Aperture Hole
+            Circle()
+                .fill(theme.pinionCenterHoleColor)
+                .frame(width: holeRadius * 2.0, height: holeRadius * 2.0)
+
+            // Center Hole Inner Shadow / Rim
+            Circle()
+                .stroke(theme.pinionBorderColor.opacity(0.5), lineWidth: 0.5)
+                .frame(width: holeRadius * 2.0, height: holeRadius * 2.0)
+        }
+        .position(center)
+    }
+}
+
+// MARK: - 3D Faceted Watch Hand View (Hour & Minute)
+struct WatchHandView: View {
+    let length: CGFloat
+    let baseWidth: CGFloat
+    let tipWidth: CGFloat
+    let grooveWidth: CGFloat
+    let grooveLength: CGFloat
+    let theme: BauhausDialTheme
+    let degrees: Double
+
+    var body: some View {
+        let chiselHeight = tipWidth * 0.75
+        let frameSize = length * 2.2
+
+        ZStack {
+            // 1. Hand Elevation Drop Shadow
+            TaperedHandShape(
+                length: length,
+                baseWidth: baseWidth,
+                tipWidth: tipWidth,
+                chiselHeight: chiselHeight
+            )
+            .fill(theme.handBodyShadowColor)
+            .offset(
+                x: theme.isDark ? 1.5 : 2.5,
+                y: theme.isDark ? 2.5 : 3.8
+            )
+            .blur(radius: theme.isDark ? 3.0 : 3.5)
+
+            // 2. Hand Metal Body (Split 3D longitudinal chamfer)
+            // Left flank (illuminated)
+            TaperedHandHalfShape(
+                length: length,
+                baseWidth: baseWidth,
+                tipWidth: tipWidth,
+                chiselHeight: chiselHeight,
+                isLeft: true
+            )
+            .fill(theme.handBodyLeftColor)
+
+            // Right flank (shadow)
+            TaperedHandHalfShape(
+                length: length,
+                baseWidth: baseWidth,
+                tipWidth: tipWidth,
+                chiselHeight: chiselHeight,
+                isLeft: false
+            )
+            .fill(theme.handBodyRightColor)
+
+            // Outer border stroke
+            TaperedHandShape(
+                length: length,
+                baseWidth: baseWidth,
+                tipWidth: tipWidth,
+                chiselHeight: chiselHeight
+            )
+            .stroke(theme.handBorderColor, lineWidth: 0.75)
+
+            // 3. Central Luminous Groove
+            if theme.isDark {
+                Capsule()
+                    .fill(theme.handGrooveGlowColor)
+                    .frame(width: grooveWidth + 3.0, height: grooveLength)
+                    .blur(radius: 4.0)
+                    .offset(y: -length * 0.50)
+
+                Capsule()
+                    .fill(theme.handGrooveColor)
+                    .frame(width: grooveWidth, height: grooveLength)
+                    .shadow(color: theme.handGrooveGlowColor, radius: 2.0)
+                    .offset(y: -length * 0.50)
+
+                Capsule()
+                    .fill(Color.white.opacity(0.85))
+                    .frame(width: max(1.0, grooveWidth * 0.35), height: grooveLength * 0.85)
+                    .offset(y: -length * 0.50)
+            } else {
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [theme.handGrooveColor, theme.handGrooveGradientBottom],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: grooveWidth, height: grooveLength)
+                    .offset(y: -length * 0.50)
+
+                Capsule()
+                    .stroke(theme.handBorderColor.opacity(0.60), lineWidth: 0.6)
+                    .frame(width: grooveWidth, height: grooveLength)
+                    .offset(y: -length * 0.50)
+            }
+        }
+        .frame(width: frameSize, height: frameSize)
+        .rotationEffect(.degrees(degrees))
+    }
+}
+
+// MARK: - Sweeping Second Hand View
+struct SweepingSecondHandView: View {
+    let length: CGFloat
+    let tail: CGFloat
+    let needleWidth: CGFloat
+    let capRadius: CGFloat
+    let theme: BauhausDialTheme
+    let degrees: Double
+
+    var body: some View {
+        let frameSize = (length + tail) * 2.2
+
+        ZStack {
+            // Shadow
+            SecondHandShape(length: length, tail: tail, width: needleWidth)
+                .fill(theme.secondHandShadowColor)
+                .offset(x: 1.0, y: 1.8)
+                .blur(radius: 1.5)
+
+            // Needle Body
+            SecondHandShape(length: length, tail: tail, width: needleWidth)
+                .fill(theme.secondHandColor)
+                .if(theme.isDark) { view in
+                    view.shadow(color: theme.secondHandGlowColor, radius: 3)
+                }
+
+            // Pivot Center Cap
+            Circle()
+                .fill(theme.secondHandColor)
+                .frame(width: capRadius * 2.0, height: capRadius * 2.0)
+                .shadow(color: theme.secondHandShadowColor, radius: 1, x: 0.5, y: 1)
+        }
+        .frame(width: frameSize, height: frameSize)
+        .rotationEffect(.degrees(degrees))
+    }
+}
+
+// MARK: - Hand Geometry Shapes
+
+/// Full Tapered Pencil Hand Shape
+struct TaperedHandShape: Shape {
+    var length: CGFloat
+    var baseWidth: CGFloat
+    var tipWidth: CGFloat
+    var chiselHeight: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let cx = rect.midX
+        let cy = rect.midY
+        let halfBase = baseWidth / 2.0
+        let halfTip = tipWidth / 2.0
+
+        path.move(to: CGPoint(x: cx, y: cy + halfBase * 0.8))
+        path.addArc(
+            center: CGPoint(x: cx, y: cy),
+            radius: halfBase * 0.8,
+            startAngle: .degrees(90),
+            endAngle: .degrees(180),
+            clockwise: false
+        )
+        path.addLine(to: CGPoint(x: cx - halfTip, y: cy - length + chiselHeight))
+        path.addLine(to: CGPoint(x: cx, y: cy - length))
+        path.addLine(to: CGPoint(x: cx + halfTip, y: cy - length + chiselHeight))
+        path.addLine(to: CGPoint(x: cx + halfBase * 0.8, y: cy))
+        path.addArc(
+            center: CGPoint(x: cx, y: cy),
+            radius: halfBase * 0.8,
+            startAngle: .degrees(0),
+            endAngle: .degrees(90),
+            clockwise: false
+        )
+        path.closeSubpath()
         return path
     }
 }
 
-// MARK: - 3D Live Sweeping Seconds Hand (High Precision Floating Needle)
-public struct LiveSecondHand3D: View {
-    public let dialRadius: CGFloat
-    public let palette: TimedColorPalette
+/// Half Tapered Hand Shape (for split 3D lighting facet)
+struct TaperedHandHalfShape: Shape {
+    var length: CGFloat
+    var baseWidth: CGFloat
+    var tipWidth: CGFloat
+    var chiselHeight: CGFloat
+    var isLeft: Bool
 
-    public var body: some View {
-        let needleLength = dialRadius * 0.94
-        let tailLength = dialRadius * 0.22
-        let totalHeight = (needleLength + tailLength) * 2.0
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let cx = rect.midX
+        let cy = rect.midY
+        let halfBase = baseWidth / 2.0
+        let halfTip = tipWidth / 2.0
 
-        Canvas { context, canvasSize in
-            let midX = canvasSize.width / 2.0
-            let centerY = canvasSize.height / 2.0
-
-            // 1. Polished Chamfered Skeletonized Open-Ring Counterweight
-            let tailCenter = CGPoint(x: midX, y: centerY + tailLength * 0.72)
-            let ringRadius = dialRadius * 0.024
-            let ringPath = Path(
-                ellipseIn: CGRect(
-                    x: tailCenter.x - ringRadius,
-                    y: tailCenter.y - ringRadius,
-                    width: ringRadius * 2.0,
-                    height: ringRadius * 2.0
-                )
+        if isLeft {
+            path.move(to: CGPoint(x: cx, y: cy + halfBase * 0.8))
+            path.addArc(
+                center: CGPoint(x: cx, y: cy),
+                radius: halfBase * 0.8,
+                startAngle: .degrees(90),
+                endAngle: .degrees(180),
+                clockwise: false
             )
-            context.stroke(ringPath, with: .color(Color(red: 0.85, green: 0.88, blue: 0.94)), style: StrokeStyle(lineWidth: dialRadius * 0.006))
-
-            // 2. Titanium Silver Needle Shank
-            var needlePath = Path()
-            needlePath.move(to: CGPoint(x: midX, y: centerY + tailLength))
-            needlePath.addLine(to: CGPoint(x: midX, y: centerY - needleLength * 0.65))
-            context.stroke(
-                needlePath,
-                with: .color(Color(red: 0.82, green: 0.85, blue: 0.90)),
-                style: StrokeStyle(lineWidth: dialRadius * 0.007, lineCap: .round)
+            path.addLine(to: CGPoint(x: cx - halfTip, y: cy - length + chiselHeight))
+            path.addLine(to: CGPoint(x: cx, y: cy - length))
+            path.addLine(to: CGPoint(x: cx, y: cy + halfBase * 0.8))
+        } else {
+            path.move(to: CGPoint(x: cx, y: cy - length))
+            path.addLine(to: CGPoint(x: cx + halfTip, y: cy - length + chiselHeight))
+            path.addLine(to: CGPoint(x: cx + halfBase * 0.8, y: cy))
+            path.addArc(
+                center: CGPoint(x: cx, y: cy),
+                radius: halfBase * 0.8,
+                startAngle: .degrees(0),
+                endAngle: .degrees(90),
+                clockwise: false
             )
-
-            // 3. Vibrant Neon Lime Active Needle Tip
-            var tipPath = Path()
-            tipPath.move(to: CGPoint(x: midX, y: centerY - needleLength * 0.65))
-            tipPath.addLine(to: CGPoint(x: midX, y: centerY - needleLength))
-            context.stroke(
-                tipPath,
-                with: .color(Color(red: 0.60, green: 1.0, blue: 0.18)),
-                style: StrokeStyle(lineWidth: dialRadius * 0.009, lineCap: .round)
-            )
+            path.addLine(to: CGPoint(x: cx, y: cy - length))
         }
-        .frame(width: dialRadius * 0.16, height: totalHeight)
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Precision Sweeping Second Hand Needle Shape
+struct SecondHandShape: Shape {
+    var length: CGFloat
+    var tail: CGFloat
+    var width: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let cx = rect.midX
+        let cy = rect.midY
+        let halfWidth = width / 2.0
+
+        // Sweeping needle from (cx, cy - length) to (cx, cy + tail)
+        path.move(to: CGPoint(x: cx - halfWidth * 0.7, y: cy - length))
+        path.addLine(to: CGPoint(x: cx + halfWidth * 0.7, y: cy - length))
+        path.addLine(to: CGPoint(x: cx + halfWidth, y: cy))
+        path.addLine(to: CGPoint(x: cx + halfWidth * 1.6, y: cy + tail))
+        path.addArc(
+            center: CGPoint(x: cx, y: cy + tail),
+            radius: halfWidth * 1.6,
+            startAngle: .degrees(0),
+            endAngle: .degrees(180),
+            clockwise: false
+        )
+        path.addLine(to: CGPoint(x: cx - halfWidth * 1.6, y: cy + tail))
+        path.addLine(to: CGPoint(x: cx - halfWidth, y: cy))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Conditional View Modifier Helper
+extension View {
+    @ViewBuilder
+    func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
     }
 }

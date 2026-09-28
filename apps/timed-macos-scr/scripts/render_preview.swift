@@ -3,7 +3,7 @@ import AppKit
 import TimedClockCore
 
 @MainActor
-func renderClock(filename: String, width: CGFloat = 1440, height: CGFloat = 900) {
+func renderClock(theme: BauhausDialTheme, filename: String, width: CGFloat = 1440, height: CGFloat = 900) {
     let model = TimedClockModel()
     model.stopTimer()
 
@@ -12,15 +12,16 @@ func renderClock(filename: String, width: CGFloat = 1440, height: CGFloat = 900)
     comps.year = 2026
     comps.month = 9
     comps.day = 28
-    comps.hour = 9
-    comps.minute = 41
-    comps.second = 28
+    // 10:10:35 - Classic horological display time
+    comps.hour = 10
+    comps.minute = 10
+    comps.second = 35
 
     if let date = calendar.date(from: comps) {
         model.currentDate = date
     }
 
-    let view = TimedClockMainView(model: model)
+    let view = TimedClockMainView(model: model, theme: theme)
         .frame(width: width, height: height)
 
     let hostingView = NSHostingView(rootView: view)
@@ -28,13 +29,13 @@ func renderClock(filename: String, width: CGFloat = 1440, height: CGFloat = 900)
     hostingView.layoutSubtreeIfNeeded()
 
     guard let bitmapRep = hostingView.bitmapImageRepForCachingDisplay(in: hostingView.bounds) else {
-        print("Failed to allocate bitmapRep")
+        print("Failed to allocate bitmapRep for \(filename)")
         return
     }
     hostingView.cacheDisplay(in: hostingView.bounds, to: bitmapRep)
 
     guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
-        print("Failed to encode PNG")
+        print("Failed to encode PNG for \(filename)")
         return
     }
 
@@ -51,7 +52,7 @@ func renderClock(filename: String, width: CGFloat = 1440, height: CGFloat = 900)
 struct RenderPreview {
     @MainActor
     static func main() {
-        let dest = "Resources/preview_dark.png"
-        renderClock(filename: dest, width: 1440, height: 900)
+        renderClock(theme: .light, filename: "Resources/preview_light.png", width: 1440, height: 900)
+        renderClock(theme: .dark, filename: "Resources/preview_dark.png", width: 1440, height: 900)
     }
 }
