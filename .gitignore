@@ -20,3 +20,16 @@ Desktop.ini
 # Logs and caches that sometimes land at the repo root
 *.log
 .cache/
+
+# Build outputs — requested at repo level, in addition to each app's own ignores
+.build/
+build/
+target/
+dist/
+.gradle/
+DerivedData/
+build-artifacts/
+
+# Tart VMs and macOS restore images (scripts/tart/ stays tracked)
+.tart/
+*.ipsw

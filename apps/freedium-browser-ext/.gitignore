@@ -6,3 +6,13 @@ safari-xcode/
 *.xcodeproj/
 xcuserdata/
 *.xcuserstate
+
+# Secrets (also ignored at the repo root; kept here so the app stays safe after extraction)
+.env
+.env.*
+!.env.example
+
+# Packaged extensions (store uploads)
+web-ext-artifacts/
+*.zip
+*.xpi

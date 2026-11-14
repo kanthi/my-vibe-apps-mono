@@ -1,1 +1,14 @@
 .DS_Store
+.build/
+build/
+*.xcodeproj/xcuserdata/
+.swiftpm/
+
+# Secrets (also ignored at the repo root; kept here so the app stays safe after extraction)
+.env
+.env.*
+!.env.example
+
+# Xcode and app bundles
+DerivedData/
+*.app
