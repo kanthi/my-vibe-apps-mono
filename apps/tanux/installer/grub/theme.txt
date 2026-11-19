@@ -1,0 +1,42 @@
+title-text: "Tanux"
+title-font: "Unifont Regular 16"
+title-color: "#ffffff"
+desktop-image: "background.png"
+desktop-color: "#000000"
+message-font: "Unifont Regular 16"
+message-color: "#ffffff"
+terminal-font: "Unifont Regular 16"
+
++ boot_menu {
+  left = 10%
+  width = 80%
+  top = 15%
+  height = 60%
+  item_font = "Unifont Regular 16"
+  item_color = "#ffffff"
+  selected_item_font = "Unifont Regular 16"
+  selected_item_color = "#000000"
+  selected_item_pixmap_style = "select_*.png"
+  item_height = 24
+  item_padding = 4
+  item_spacing = 4
+  icon_width = 0
+  icon_height = 0
+  item_icon_space = 0
+  scrollbar = false
+}
+
++ progress_bar {
+  id = "__timeout__"
+  left = 10%
+  width = 80%
+  top = 82%
+  height = 22
+  show_text = true
+  font = "Unifont Regular 16"
+  text_color = "#ffffff"
+  text = "@TIMEOUT_NOTIFICATION_LONG@"
+  border_color = "#ffffff"
+  bg_color = "#000000"
+  fg_color = "#444444"
+}

@@ -1,0 +1,22 @@
+.DS_Store
+
+# Built images and build trees
+*.iso
+*.qcow2
+*.img
+*.raw
+*.vmdk
+*.tar
+build/
+output/
+tmp/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+
+# Python
+__pycache__/
+*.pyc

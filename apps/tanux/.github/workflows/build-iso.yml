@@ -1,0 +1,56 @@
+# Builds the Tanux ISO and publishes it as the single "latest" download.
+#
+# NOT ACTIVE YET, AND NEVER RUN. GitHub only reads workflows from the root of
+# a repository, so this does nothing while Tanux lives inside the incubator
+# repo. It starts working once Tanux is extracted into its own repository.
+# Setup steps and the reasoning are in docs/building.md ("Automatic builds").
+#
+# Only one ISO is kept: each run overwrites the previous file in the bucket.
+name: Build ISO
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  iso:
+    # arm64 runner, to match the ISO that has been tested.
+    runs-on: ubuntu-24.04-arm
+    container:
+      image: quay.io/fedora/fedora:45
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          dnf install -y --setopt=install_weak_deps=False \
+            rpm-build createrepo_c xorriso mtools dosfstools squashfs-tools \
+            cpio pigz librsvg2-tools pykickstart isomd5sum curl python3 awscli2
+
+      - name: Check Kickstarts and DNF5 resolution
+        run: ./scripts/check-kickstarts.sh
+
+      - name: Build ISO
+        run: |
+          ./scripts/build-iso.sh
+          cp build/tanux-45-aarch64.iso tanux-latest-aarch64.iso
+          sha256sum tanux-latest-aarch64.iso > tanux-latest-aarch64.iso.sha256
+          ls -lh tanux-latest-aarch64.iso
+
+      # Cloudflare R2 speaks the S3 protocol. A fixed file name means the new
+      # ISO replaces the old one, so the bucket never holds more than one.
+      - name: Upload to Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: |
+          aws s3 cp tanux-latest-aarch64.iso "s3://$R2_BUCKET/tanux-latest-aarch64.iso" --endpoint-url "$R2_ENDPOINT"
+          aws s3 cp tanux-latest-aarch64.iso.sha256 "s3://$R2_BUCKET/tanux-latest-aarch64.iso.sha256" --endpoint-url "$R2_ENDPOINT"

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="69" viewBox="0 0 150 69">
+<defs>
+<linearGradient id="d1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F1E9FF"/></linearGradient>
+<linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCCBFA"/><stop offset="1" stop-color="#C3ABF2"/></linearGradient>
+<linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2D3FC"/><stop offset="1" stop-color="#CDB7F6"/></linearGradient>
+<linearGradient id="s2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B79AEE"/><stop offset="1" stop-color="#9F7FE0"/></linearGradient>
+<linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BDA0F0"/><stop offset="1" stop-color="#A583E6"/></linearGradient>
+<linearGradient id="s3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8E6AD8"/><stop offset="1" stop-color="#7650C4"/></linearGradient>
+</defs>
+<g transform="translate(30,34) scale(0.095)">
+  <path d="M-250 94 A250 100 0 0 0 250 94 V146 A250 100 0 0 1 -250 146 Z" fill="url(#s3)"/>
+  <ellipse cx="0" cy="94" rx="250" ry="100" fill="url(#d3)"/>
+  <path d="M-250 -26 A250 100 0 0 0 250 -26 V26 A250 100 0 0 1 -250 26 Z" fill="url(#s2)"/>
+  <ellipse cx="0" cy="-26" rx="250" ry="100" fill="url(#d2)"/>
+  <path d="M-250 -146 A250 100 0 0 0 250 -146 V-94 A250 100 0 0 1 -250 -94 Z" fill="url(#s1)"/>
+  <ellipse cx="0" cy="-146" rx="250" ry="100" fill="url(#d1)"/>
+</g>
+<text x="64" y="42" font-family="Noto Sans, Cantarell, sans-serif" font-weight="bold" font-size="24" fill="#FFFFFF">Tanux</text>
+</svg>
