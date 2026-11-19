@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Fork-only (khoop-staging): debug builds are the testing/staging app. The package is already
+  com.khoop.app.debug (debug applicationIdSuffix), so it installs ALONGSIDE the official Khoop
+  (com.khoop.app) with its own data. This override gives it a distinct launcher name so the two
+  are tellable apart on the home screen. Build-type source set wins over main/flavor, so
+  assembleFullDebug shows "Khoop Staging". Mirrors how the demo flavor labels itself "Khoop Demo".
+-->
+<resources>
+    <string name="app_name">Khoop Staging</string>
+</resources>
