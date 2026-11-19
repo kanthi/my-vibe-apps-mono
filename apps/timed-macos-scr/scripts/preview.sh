@@ -3,7 +3,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Find build products directory
+# Always build: it is incremental (a few seconds when nothing changed), and it keeps
+# the preview in step with the sources and with the installed macOS SDK.
+echo "==> Building TimedClockCore..."
+swift build -c release
+
 BUILD_DIR=""
 for dir in ".build/release" ".build/arm64-apple-macosx/release" ".build/out/Products/Release"; do
     if [ -f "$dir/TimedClockCore.o" ]; then
@@ -11,17 +15,6 @@ for dir in ".build/release" ".build/arm64-apple-macosx/release" ".build/out/Prod
         break
     fi
 done
-
-if [ -z "$BUILD_DIR" ]; then
-    echo "==> Building TimedClockCore..."
-    swift build -c release
-    for dir in ".build/release" ".build/arm64-apple-macosx/release" ".build/out/Products/Release"; do
-        if [ -f "$dir/TimedClockCore.o" ]; then
-            BUILD_DIR="$dir"
-            break
-        fi
-    done
-fi
 
 mkdir -p .build
 
@@ -35,5 +28,5 @@ swiftc -parse-as-library -O \
   -framework SwiftUI \
   -o .build/preview_runner
 
-echo "==> Launching fullscreen preview (Press ESC or Q to exit)..."
-.build/preview_runner
+echo "==> Launching fullscreen preview (arrows or 1-8 switch face, Space toggles Bauhaus light/dark, Esc or Q quits)..."
+.build/preview_runner "$@"

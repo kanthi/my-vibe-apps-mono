@@ -3,7 +3,7 @@ import AppKit
 import TimedClockCore
 
 @MainActor
-func renderClock(theme: BauhausDialTheme, filename: String, width: CGFloat = 1440, height: CGFloat = 900) {
+func renderClock(face: WatchFace, bauhausTheme: BauhausDialTheme? = nil, filename: String, width: CGFloat = 1440, height: CGFloat = 900) {
     let model = TimedClockModel()
     model.stopTimer()
 
@@ -21,7 +21,7 @@ func renderClock(theme: BauhausDialTheme, filename: String, width: CGFloat = 144
         model.currentDate = date
     }
 
-    let view = TimedClockMainView(model: model, theme: theme)
+    let view = TimedClockFaceView(model: model, face: face, bauhausTheme: bauhausTheme)
         .frame(width: width, height: height)
 
     let hostingView = NSHostingView(rootView: view)
@@ -50,9 +50,14 @@ func renderClock(theme: BauhausDialTheme, filename: String, width: CGFloat = 144
 
 @main
 struct RenderPreview {
+    /// Usage: render_preview [output-dir]   (default: Resources)
     @MainActor
     static func main() {
-        renderClock(theme: .light, filename: "Resources/preview_light.png", width: 1440, height: 900)
-        renderClock(theme: .dark, filename: "Resources/preview_dark.png", width: 1440, height: 900)
+        let dir = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "Resources"
+        renderClock(face: .bauhaus, bauhausTheme: .light, filename: "\(dir)/preview_light.png")
+        renderClock(face: .bauhaus, bauhausTheme: .dark, filename: "\(dir)/preview_dark.png")
+        for face in WatchFace.allCases where face != .bauhaus {
+            renderClock(face: face, filename: "\(dir)/preview_\(face.rawValue).png")
+        }
     }
 }

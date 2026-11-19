@@ -10,7 +10,17 @@ Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming 
 
 ## Features
 
-- **Version**: `0.008`
+- **Version**: `0.010`
+- **Eight faces** (pick one in System Settings › Screen Saver › Options…). Every face fills the whole screen and sizes itself to whichever display it runs on. Each 3D face has its own layout, not just its own colors:
+  - **Bauhaus** (original, follows system light/dark): described below.
+  - **Bauhaus Lume (3D)**: the original layout (1–12, pill batons, 05–55 ring, pencil hands) with 3D metal and glowing cyan lume on black.
+  - **Obsidian (dress)**: black sunburst, applied polished batons, sword hands, date at 3.
+  - **Pilot**: matte black, large printed numerals, triangle and two dots at 12, heat-blued sword hands.
+  - **Chronograph**: charcoal sunburst, three recessed sub-dials with concentric grooves (running seconds at 9, 30-minute counter at 3, 12-hour counter at 6), tachymeter scale, 1/5-second track, stick hands, red center seconds.
+  - **Lunar (moon phase)**: blue guilloché, Roman numerals, railroad track, open-ring (Breguet-style) hands, and a moon window at 6 showing the real current moon phase.
+  - **Meridian (GMT)**: two-tone day/night 24-hour ring, arrowhead markers, an orange 24-hour hand showing UTC, date.
+  - **Abyss (diver)**: matte black, lume dots, triangle at 12, orange seconds with lume lollipop, date.
+- **3D lighting on the dark faces**: one top-left light shades everything. Hand and marker facets brighten and darken as they turn, and cast shadows always fall the same way (higher hands cast longer shadows). Only the hands layer redraws each frame.
 - **Strictly a Native macOS Screen Saver**:
   - Compliant with Apple's official `ScreenSaver` framework (`ScreenSaverView` lifecycle with `init(frame:isPreview:)`, `startAnimation()`, `stopAnimation()`, and 60 FPS `animateOneFrame()`).
   - Pure native `.saver` bundle with zero companion applications, helper daemons, or external runtime dependencies.
@@ -28,9 +38,9 @@ Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming 
   - **Sweeping Second Hand**: Ultra-fine needle gliding continuously at 60 FPS, extending through the outer 5-minute ring with a rounded counterweight tail.
   - **Center Pinion**: Turned metal collet washer with an open dark center aperture and second hand pivot cap.
 - **Interactive Full-Screen Preview**:
-  - Instant ephemeral preview via `./scripts/preview.sh`.
-  - Press `Space` or `T` while previewing to toggle between Light and Dark mode.
-  - Press `ESC` or `Q` to exit.
+  - Instant ephemeral preview via `./scripts/preview.sh` (always rebuilds first).
+  - `←` / `→` or `1`–`8` switch face. `Space` or `T` toggles Light / Dark on the Bauhaus face.
+  - `ESC` or `Q` exits. Other keys and clicks are ignored.
 
 ---
 
@@ -47,7 +57,7 @@ Engineered strictly as a native macOS Screen Saver (`.saver` bundle) conforming 
 # 1. Build the release screensaver bundle (dist/TimedClock.saver)
 ./scripts/build.sh
 
-# 2. Test live in full-screen without installing (Press SPACE to toggle Light/Dark, ESC to exit)
+# 2. Test live in full-screen without installing (arrows switch face, ESC exits)
 ./scripts/preview.sh
 
 # 3. Install into macOS System Settings > Screen Savers
@@ -65,7 +75,10 @@ timed-macos-scr/
 │   ├── TimedClockCore/         # Scalable vector views, themes, and live time model
 │   │   ├── TimedTheme.swift    # BauhausDialTheme (Light & Dark color palettes & tokens)
 │   │   ├── TimedClockModel.swift # 60 FPS high-precision time publisher (hours, minutes, seconds)
-│   │   └── TimedClockMainView.swift # Full-screen Bauhaus clock orchestrator
+│   │   ├── TimedClockMainView.swift # Full-screen Bauhaus clock orchestrator
+│   │   ├── RealisticWatchTheme.swift # 3D dial themes + WatchFace list
+│   │   ├── RealisticWatchView.swift # Full-screen 3D dial renderer + face switcher
+│   │   └── DialComplications.swift # Pilot, chronograph, moon phase and GMT layouts
 │   └── TimedClockSaver/        # Native Apple ScreenSaverView host
 │       └── TimedClockScreenSaverView.swift
 ├── Resources/                  # High-resolution screenshot renders
@@ -77,7 +90,7 @@ timed-macos-scr/
 │   ├── install.sh              # 1-click installer into ~/Library/Screen Savers/
 │   ├── preview.sh              # Non-intrusive full-screen live preview
 │   ├── preview_runner.swift    # Ephemeral test runner with Spacebar Light/Dark toggle
-│   └── render_preview.swift    # High-resolution vector renderer for documentation
+│   └── render_preview.swift    # Renders every face to PNG (default Resources/, or a folder argument)
 └── README.md
 ```
 

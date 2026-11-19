@@ -43,9 +43,9 @@ cat << 'EOF' > "$SAVER_DIR/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>BNDL</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.008</string>
+    <string>0.010</string>
     <key>CFBundleVersion</key>
-    <string>0.008</string>
+    <string>0.010</string>
     <key>NSPrincipalClass</key>
     <string>TimedClockScreenSaverView</string>
 </dict>
