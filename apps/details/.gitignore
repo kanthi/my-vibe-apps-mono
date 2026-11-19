@@ -1,0 +1,7 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Third-party reference screenshots. Local only: this repository is public.
+docs/references/
