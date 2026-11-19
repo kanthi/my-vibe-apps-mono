@@ -1,0 +1,27 @@
+// Tanix bar for Hyprland. Reference: https://github.com/Alexays/Waybar/wiki
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": ["pulseaudio", "network", "battery", "tray"],
+
+  "hyprland/window": { "max-length": 60 },
+  "clock": { "format": "{:%a %d %b  %H:%M}" },
+  "pulseaudio": {
+    "format": "vol {volume}%",
+    "format-muted": "muted",
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+  },
+  "network": {
+    "format-wifi": "{essid}",
+    "format-ethernet": "wired",
+    "format-disconnected": "offline"
+  },
+  "battery": {
+    "format": "bat {capacity}%",
+    "states": { "warning": 25, "critical": 10 }
+  },
+  "tray": { "spacing": 8 }
+}

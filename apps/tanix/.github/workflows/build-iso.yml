@@ -1,0 +1,63 @@
+# Builds the Tanix ISO and publishes it as the single "latest" download.
+#
+# NOT ACTIVE YET, AND NEVER RUN. GitHub only reads workflows from the root of
+# a repository, so this does nothing while Tanix lives inside the incubator
+# repo. It starts working once Tanix is extracted into its own repository.
+# Setup steps and the reasoning are in docs/building.md ("Automatic builds").
+#
+# Only one ISO is kept: each run overwrites the previous file in the bucket.
+name: Build ISO
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  iso:
+    # arm64 runner, to match the ISO that has been tested.
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      # The runner has about 14 GB free and the build needs more.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Check installer choices
+        run: |
+          nix build .#installer-extensions -o installer-extensions
+          nix shell --inputs-from . nixpkgs#python3 -c python3 scripts/check_desktops.py \
+            installer-extensions/lib/calamares/modules/nixos/main.py .
+
+      - name: Build ISO
+        run: |
+          nix build .#iso -L
+          cp -L result/iso/*.iso tanix-latest-aarch64.iso
+          sha256sum tanix-latest-aarch64.iso > tanix-latest-aarch64.iso.sha256
+          ls -lh tanix-latest-aarch64.iso
+
+      # Cloudflare R2 speaks the S3 protocol. A fixed file name means the new
+      # ISO replaces the old one, so the bucket never holds more than one.
+      - name: Upload to Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          # R2 rejects the extra checksums newer AWS CLI versions send by default.
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: |
+          aws s3 cp tanix-latest-aarch64.iso "s3://$R2_BUCKET/tanix-latest-aarch64.iso" --endpoint-url "$R2_ENDPOINT"
+          aws s3 cp tanix-latest-aarch64.iso.sha256 "s3://$R2_BUCKET/tanix-latest-aarch64.iso.sha256" --endpoint-url "$R2_ENDPOINT"

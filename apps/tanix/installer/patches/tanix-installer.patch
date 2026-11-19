@@ -1,0 +1,253 @@
+--- a/modules/nixos/main.py	2026-11-17 21:51:01
++++ b/modules/nixos/main.py	2026-11-17 21:51:01
+@@ -31,6 +31,8 @@
+   imports =
+     [ # Include the results of the hardware scan.
+       ./hardware-configuration.nix
++      # Tanix branding and editions. Copied here by the installer.
++      ./tanix
+     ];
+ 
+ """
+@@ -231,6 +233,97 @@
+ 
+ """
+ 
++# --- Tanix: choices on the installer's "System" page -----------------------
++
++# Choices with no graphical interface. Everything else is a desktop.
++TANIX_SERVER_IDS = ("", "server-web", "server-containers", "server-database")
++
++
++def tanix_is_desktop():
++    choice = libcalamares.globalstorage.value("packagechooser_packagechooser")
++    return choice not in TANIX_SERVER_IDS
++
++
++def tanix_misc():
++    # Sound and printing for desktops. The Security Edition skips printing.
++    if libcalamares.globalstorage.value("packagechooser_packagechooser") == "security":
++        return cfgmisc.replace(
++            "services.printing.enable = true;", "services.printing.enable = false;"
++        )
++    return cfgmisc
++
++
++cfghyprland = """\
++  # Enable the Hyprland Wayland compositor, started through UWSM so that
++  # systemd user services (wallpaper, portals) run in the session.
++  programs.hyprland.enable = true;
++  programs.hyprland.withUWSM = true;
++  services.displayManager.sddm.enable = true;
++  services.displayManager.sddm.wayland.enable = true;
++  services.displayManager.defaultSession = "hyprland-uwsm";
++
++  # Programs used by the default Hyprland configuration.
++  environment.systemPackages = with pkgs; [
++    kitty
++    hyprlauncher
++    kdePackages.dolphin
++    waybar
++  ];
++
++"""
++
++cfgsecurity = """\
++  # Tanix Security Edition: the KDE Plasma desktop plus the security tool
++  # set. The tools are listed in ./tanix/security.nix.
++  services.xserver.enable = true;
++  services.displayManager.sddm.enable = true;
++  services.desktopManager.plasma6.enable = true;
++  tanix.security.enable = true;
++
++"""
++
++cfgserver = """\
++  # Tanix server: SSH with keys only (no passwords), fail2ban, and nightly
++  # automatic upgrades. Add your SSH key from the console with
++  #   tanix-add-ssh-key github:YOUR-NAME
++  # See /etc/nixos/tanix/server.nix for what this turns on.
++  tanix.server.enable = true;
++
++  # Extras, off by default:
++  # tanix.server.tailscale.enable = true;   # private network with Tailscale
++  # tanix.server.containers.enable = true;  # Podman containers
++
++"""
++
++cfgserverweb = """\
++  # Web server: Caddy serving the files in /var/www. Run `tanix-web-setup`
++  # to set a domain name; Caddy then fetches HTTPS certificates by itself.
++  tanix.server.web.enable = true;
++  tanix.server.web.domain = null;
++  tanix.server.web.email = null;
++
++"""
++
++cfgservercontainers = """\
++  # Container server: Podman, with a docker-compatible `docker` command
++  # and podman-compose.
++  tanix.server.containers.enable = true;
++
++"""
++
++cfgserverdatabase = """\
++  # Database server: PostgreSQL, reachable from this machine only.
++  # Start with: sudo -u postgres psql
++  tanix.server.database.enable = true;
++
++"""
++
++cfgtanixupdates = """\
++  # Install updates automatically every night (never reboots by itself).
++  tanix.autoUpgrade.enable = @@tanixautoupgrade@@;
++
++"""
++
+ cfgkeymap = """\
+   # Configure keymap in X11
+   services.xserver.xkb = {
+@@ -384,7 +477,7 @@
+     return proxyEnv
+ 
+ def pretty_name():
+-    return _("Installing NixOS.")
++    return _("Installing Tanix.")
+ 
+ 
+ status = pretty_name()
+@@ -599,7 +692,7 @@
+     INSTALL_PROGRESS_END = 1.0
+ 
+     global status
+-    status = _("Configuring NixOS")
++    status = _("Configuring Tanix")
+     libcalamares.job.setprogress(0.01)
+ 
+     ngc_cfg = configparser.ConfigParser()
+@@ -761,7 +854,7 @@
+                         ),
+                     )
+ 
+-    status = _("Configuring NixOS")
++    status = _("Configuring Tanix")
+     libcalamares.job.setprogress(0.03)
+ 
+     cfg += cfgnetwork
+@@ -778,7 +871,7 @@
+         cfg += cfgnmapplet
+ 
+     if gs.value("hostname") is None:
+-        catenate(variables, "hostname", "nixos")
++        catenate(variables, "hostname", "tanix")
+     else:
+         catenate(variables, "hostname", gs.value("hostname"))
+ 
+@@ -826,7 +919,24 @@
+         cfg += cfglumina
+     elif gs.value("packagechooser_packagechooser") == "budgie":
+         cfg += cfgbudgie
++    elif gs.value("packagechooser_packagechooser") == "hyprland":
++        cfg += cfghyprland
++    elif gs.value("packagechooser_packagechooser") == "security":
++        cfg += cfgsecurity
++    elif gs.value("packagechooser_packagechooser") == "":
++        cfg += cfgserver
++    elif gs.value("packagechooser_packagechooser") == "server-web":
++        cfg += cfgserver + cfgserverweb
++    elif gs.value("packagechooser_packagechooser") == "server-containers":
++        cfg += cfgserver + cfgservercontainers
++    elif gs.value("packagechooser_packagechooser") == "server-database":
++        cfg += cfgserver + cfgserverdatabase
+ 
++    cfg += cfgtanixupdates
++    catenate(
++        variables, "tanixautoupgrade", "false" if tanix_is_desktop() else "true"
++    )
++
+     if (
+         gs.value("keyboardLayout") is not None
+         and gs.value("keyboardVariant") is not None
+@@ -899,9 +1009,9 @@
+ 
+     if (
+         gs.value("packagechooser_packagechooser") is not None
+-        and gs.value("packagechooser_packagechooser") != ""
++        and tanix_is_desktop()
+     ):
+-        cfg += cfgmisc
++        cfg += tanix_misc()
+ 
+     if gs.value("username") is not None:
+         fullname = gs.value("fullname")
+@@ -914,13 +1024,13 @@
+         if (
+             gs.value("autoLoginUser") is not None
+             and gs.value("packagechooser_packagechooser") is not None
+-            and gs.value("packagechooser_packagechooser") != ""
++            and tanix_is_desktop()
+         ):
+             cfg += cfgautologin
+         elif gs.value("autoLoginUser") is not None:
+             cfg += cfgautologintty
+ 
+-    if gs.value("packagechooser_packagechooser") != "":
++    if tanix_is_desktop():
+         cfg += cfgfirefox
+ 
+     # Check if unfree packages are allowed
+@@ -931,11 +1041,11 @@
+ 
+     cfg += cfgpkgs
+     # Use firefox as default as a graphical web browser, and add kate to plasma desktop
+-    if gs.value("packagechooser_packagechooser") == "plasma6":
++    if gs.value("packagechooser_packagechooser") in ("plasma6", "security"):
+         catenate(
+             variables, "pkgs", "\n      kdePackages.kate\n    #  thunderbird\n    "
+         )
+-    elif gs.value("packagechooser_packagechooser") != "":
++    elif tanix_is_desktop():
+         catenate(variables, "pkgs", "\n    #  thunderbird\n    ")
+     else:
+         catenate(variables, "pkgs", "")
+@@ -964,7 +1074,7 @@
+         pattern = "@@{key}@@".format(key=key)
+         cfg = cfg.replace(pattern, str(variables[key]))
+ 
+-    status = _("Generating NixOS configuration")
++    status = _("Generating Tanix configuration")
+     libcalamares.job.setprogress(0.05)
+ 
+     try:
+@@ -1044,7 +1154,30 @@
+     # Write the configuration.nix file
+     libcalamares.utils.host_env_process_output(["cp", "/dev/stdin", config], None, cfg)
+ 
+-    status = _("Installing NixOS")
++    # Copy the Tanix module (shipped on the live image as /etc/tanix) to
++    # /etc/nixos/tanix on the target, where configuration.nix imports it.
++    tanix_dir = root_mount_point + "/etc/nixos/tanix"
++    try:
++        subprocess.check_output(
++            ["pkexec", "rm", "-rf", tanix_dir], stderr=subprocess.STDOUT
++        )
++        subprocess.check_output(
++            [
++                "pkexec",
++                "cp",
++                "-rL",
++                "--no-preserve=mode,ownership",
++                "/etc/tanix",
++                tanix_dir,
++            ],
++            stderr=subprocess.STDOUT,
++        )
++    except subprocess.CalledProcessError as e:
++        if e.output is not None:
++            libcalamares.utils.error(e.output.decode("utf8"))
++        return (_("Copying the Tanix module failed"), _(e.output.decode("utf8")))
++
++    status = _("Installing Tanix")
+     libcalamares.job.setprogress(INSTALL_PROGRESS_START)
+ 
+     try:

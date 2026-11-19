@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="214 194 596 652" role="img" aria-label="Tanix mark: badge with T-visor cut">
+<defs><mask id="bm" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+<path d="M512 214 C620 214 760 262 790 300 C800 520 724 712 512 826 C300 712 224 520 234 300 C264 262 404 214 512 214 Z" fill="#fff"/>
+<path d="M352 408 L672 408 L664 472 L548 472 L548 694 L528 738 L496 738 L476 694 L476 472 L360 472 Z" transform="translate(512,520) scale(1.05) translate(-512,-560)" fill="#000" stroke="#000" stroke-width="12" stroke-linejoin="round"/></mask></defs>
+<rect width="1024" height="1024" fill="#fff" mask="url(#bm)"/>
+</svg>

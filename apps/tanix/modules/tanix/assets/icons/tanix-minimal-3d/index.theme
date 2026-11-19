@@ -1,0 +1,20 @@
+[Icon Theme]
+Name=Tanix Minimal 3D
+Comment=Skeuomorphic 3D app icons; everything else falls back to Breeze
+Inherits=breeze,hicolor
+Example=system-file-manager
+DisplayDepth=32
+LinkOverlay=link
+LockOverlay=lockoverlay
+ShareOverlay=share
+ZipOverlay=zip
+FollowsColorScheme=false
+
+Directories=scalable/apps
+
+[scalable/apps]
+Size=48
+Context=Applications
+Type=Scalable
+MinSize=16
+MaxSize=512

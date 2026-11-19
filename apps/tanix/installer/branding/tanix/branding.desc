@@ -1,0 +1,50 @@
+# Calamares branding for the Tanix installer.
+# Reference: https://codeberg.org/Calamares/calamares/src/branch/calamares/src/branding/default/branding.desc
+---
+componentName:  tanix
+
+welcomeStyleCalamares:   false
+welcomeExpandingLogo:   true
+
+windowExpanding:    normal
+windowSize: 800px,520px
+windowPlacement: center
+
+sidebar: widget
+navigation: widget
+
+strings:
+    # ${NAME} is read from /etc/os-release, which the Tanix module sets.
+    productName:         "${NAME}"
+    shortProductName:    Tanix
+    version:
+    shortVersion:
+    versionedName:       Tanix
+    shortVersionedName:  Tanix
+    bootloaderEntryName: Tanix
+    # Tanix has no website yet. These point at the NixOS resources that
+    # apply to it unchanged.
+    productUrl:          https://nixos.org/
+    supportUrl:          https://nixos.org/manual/nixos
+    knownIssuesUrl:      https://github.com/NixOS/nixpkgs/issues
+    releaseNotesUrl:     https://nixos.org/manual/nixos/stable/release-notes.html
+    donateUrl:           https://nixos.org/donate.html
+
+images:
+    productIcon:         "tanix-logo.png"
+    productLogo:         "tanix-mark.png"
+    productWelcome:      "tanix-logo.png"
+
+style:
+   SidebarBackground:        "#14297A"
+   SidebarText:              "#FFFFFF"
+   SidebarTextCurrent:       "#0A1030"
+   SidebarBackgroundCurrent: "#9DB5F8"
+
+slideshow:               "show.qml"
+slideshowAPI: 2
+
+uploadServer :
+    type :    "fiche"
+    url :     "http://termbin.com:9999"
+    sizeLimit : -1

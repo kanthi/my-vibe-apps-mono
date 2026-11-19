@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="260 186 504 652" role="img" aria-label="Tanix mark: striped T-visor helm">
+<defs><mask id="hm" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+<path d="M512 206 C652 206 730 304 736 446 L740 636 C740 698 718 744 676 770 L604 818 L420 818 L348 770 C306 744 284 698 284 636 L288 446 C294 304 372 206 512 206 Z" fill="#fff"/><g stroke="#000" stroke-width="18"><line x1="200" y1="262" x2="824" y2="262"/><line x1="200" y1="318" x2="824" y2="318"/><line x1="200" y1="374" x2="824" y2="374"/><line x1="200" y1="430" x2="824" y2="430"/><line x1="200" y1="486" x2="824" y2="486"/><line x1="200" y1="542" x2="824" y2="542"/><line x1="200" y1="598" x2="824" y2="598"/><line x1="200" y1="654" x2="824" y2="654"/><line x1="200" y1="710" x2="824" y2="710"/><line x1="200" y1="766" x2="824" y2="766"/></g>
+<path d="M352 408 L672 408 L664 472 L548 472 L548 694 L528 738 L496 738 L476 694 L476 472 L360 472 Z" fill="#000" stroke="#000" stroke-width="34" stroke-linejoin="round"/></mask></defs>
+<rect width="1024" height="1024" fill="#fff" mask="url(#hm)"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="140 270 744 580" role="img" aria-label="Tanix mark: striped T">
+<defs><mask id="sm" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+<path d="M206 300 L512 380 L818 300 L858 404 L608 578 L584 796 L440 796 L416 578 L166 404 Z" fill="#fff" stroke="#fff" stroke-width="46" stroke-linejoin="round"/>
+<g fill="none" stroke="#000" stroke-width="18" stroke-linecap="butt"><polyline points="60,346 512,426 964,346" /><polyline points="60,392 512,472 964,392" /><polyline points="60,438 512,518 964,438" /><line x1="446" y1="518" x2="472.4" y2="830"/><line x1="490" y1="518" x2="498.8" y2="830"/><line x1="534" y1="518" x2="525.2" y2="830"/><line x1="578" y1="518" x2="551.6" y2="830"/></g></mask></defs>
+<rect x="0" y="0" width="1024" height="1024" fill="#fff" mask="url(#sm)"/>
+</svg>

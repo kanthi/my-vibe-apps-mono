@@ -1,0 +1,20 @@
+.DS_Store
+
+# Nix build outputs (symlinks into /nix/store) and direnv cache
+result
+result-*
+.direnv/
+
+# Built images
+*.iso
+*.qcow2
+*.img
+*.raw
+*.vmdk
+build/
+
+# Secrets
+.env
+.env.*
+!.env.example
+

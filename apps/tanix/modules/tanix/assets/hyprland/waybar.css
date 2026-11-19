@@ -1,0 +1,39 @@
+/* Tanix bar colours */
+* {
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: rgba(10, 16, 48, 0.88);
+  color: #ffffff;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  color: #c9d8ff;
+  border-radius: 0;
+}
+
+#workspaces button.active {
+  background: #1a379e;
+  color: #ffffff;
+}
+
+#window,
+#clock,
+#pulseaudio,
+#network,
+#battery,
+#tray {
+  padding: 0 10px;
+}
+
+#battery.warning {
+  color: #ffcc66;
+}
+
+#battery.critical {
+  color: #ff6b6b;
+}

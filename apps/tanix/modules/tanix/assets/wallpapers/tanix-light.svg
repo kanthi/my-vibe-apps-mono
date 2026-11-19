@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8FB4FF"/><stop offset="1" stop-color="#2B4FC0"/></linearGradient>
+<radialGradient id="glow" cx=".5" cy=".46" r=".5"><stop offset="0" stop-color="#BFD4FF" stop-opacity=".55"/><stop offset="1" stop-color="#BFD4FF" stop-opacity="0"/></radialGradient>
+<linearGradient id="ft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E6EEFF"/></linearGradient>
+<linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9D8FF"/><stop offset="1" stop-color="#9DB5F8"/></linearGradient>
+<linearGradient id="fr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8AA6F2"/><stop offset="1" stop-color="#5370D2"/></linearGradient>
+<g id="cube"><polygon points="-216.5,-125 0,0 0,250 -216.5,125" fill="url(#fl)"/><polygon points="0,0 216.5,-125 216.5,125 0,250" fill="url(#fr)"/><polygon points="0,-250 216.5,-125 0,0 -216.5,-125" fill="url(#ft)"/></g>
+<g id="wire" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"><polygon points="-216.5,-125 0,0 0,250 -216.5,125"/><polygon points="0,0 216.5,-125 216.5,125 0,250"/><polygon points="0,-250 216.5,-125 0,0 -216.5,-125"/></g>
+</defs>
+<rect width="3840" height="2160" fill="url(#bg)"/>
+<use href="#wire" transform="translate(2381.5,-375.0) scale(1.0)" opacity="0.101"/>
+<use href="#wire" transform="translate(3680.5,-375.0) scale(1.0)" opacity="0.076"/>
+<use href="#wire" transform="translate(4113.5,-375.0) scale(1.0)" opacity="0.137"/>
+<use href="#wire" transform="translate(-433.0,0.0) scale(1.0)" opacity="0.158"/>
+<use href="#wire" transform="translate(1299.0,0.0) scale(1.0)" opacity="0.042"/>
+<use href="#wire" transform="translate(2165.0,0.0) scale(1.0)" opacity="0.063"/>
+<use href="#wire" transform="translate(2598.0,0.0) scale(1.0)" opacity="0.044"/>
+<use href="#wire" transform="translate(1515.5,375.0) scale(1.0)" opacity="0.160"/>
+<use href="#wire" transform="translate(3247.5,375.0) scale(1.0)" opacity="0.068"/>
+<use href="#wire" transform="translate(3680.5,375.0) scale(1.0)" opacity="0.048"/>
+<use href="#wire" transform="translate(1299.0,750.0) scale(1.0)" opacity="0.065"/>
+<use href="#wire" transform="translate(3464.0,750.0) scale(1.0)" opacity="0.116"/>
+<use href="#wire" transform="translate(4330.0,750.0) scale(1.0)" opacity="0.050"/>
+<use href="#wire" transform="translate(-216.5,1125.0) scale(1.0)" opacity="0.156"/>
+<use href="#wire" transform="translate(649.5,1125.0) scale(1.0)" opacity="0.070"/>
+<use href="#wire" transform="translate(1082.5,1125.0) scale(1.0)" opacity="0.047"/>
+<use href="#wire" transform="translate(1948.5,1125.0) scale(1.0)" opacity="0.107"/>
+<use href="#wire" transform="translate(2814.5,1125.0) scale(1.0)" opacity="0.128"/>
+<use href="#wire" transform="translate(3247.5,1125.0) scale(1.0)" opacity="0.117"/>
+<use href="#wire" transform="translate(3680.5,1125.0) scale(1.0)" opacity="0.090"/>
+<use href="#wire" transform="translate(4113.5,1125.0) scale(1.0)" opacity="0.072"/>
+<use href="#wire" transform="translate(0.0,1500.0) scale(1.0)" opacity="0.146"/>
+<use href="#wire" transform="translate(433.0,1500.0) scale(1.0)" opacity="0.087"/>
+<use href="#wire" transform="translate(1732.0,1500.0) scale(1.0)" opacity="0.159"/>
+<use href="#wire" transform="translate(2165.0,1500.0) scale(1.0)" opacity="0.071"/>
+<use href="#wire" transform="translate(3031.0,1500.0) scale(1.0)" opacity="0.076"/>
+<use href="#wire" transform="translate(3464.0,1500.0) scale(1.0)" opacity="0.051"/>
+<use href="#wire" transform="translate(4330.0,1500.0) scale(1.0)" opacity="0.112"/>
+<use href="#wire" transform="translate(2381.5,1875.0) scale(1.0)" opacity="0.058"/>
+<use href="#wire" transform="translate(3680.5,1875.0) scale(1.0)" opacity="0.063"/>
+<use href="#wire" transform="translate(-433.0,2250.0) scale(1.0)" opacity="0.154"/>
+<use href="#wire" transform="translate(1299.0,2250.0) scale(1.0)" opacity="0.045"/>
+<use href="#wire" transform="translate(2165.0,2250.0) scale(1.0)" opacity="0.125"/>
+<use href="#wire" transform="translate(2598.0,2250.0) scale(1.0)" opacity="0.139"/>
+<use href="#wire" transform="translate(3464.0,2250.0) scale(1.0)" opacity="0.061"/>
+<use href="#wire" transform="translate(4330.0,2250.0) scale(1.0)" opacity="0.067"/>
+<rect width="3840" height="2160" fill="url(#glow)"/>
+<use href="#cube" transform="translate(1920,1040) scale(1.15)"/>
+</svg>
