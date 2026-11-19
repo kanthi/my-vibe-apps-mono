@@ -1,0 +1,27 @@
+[package]
+name = "meter-app"
+version.workspace = true
+edition = "2024"
+
+[[bin]]
+name = "meter"
+path = "src/main.rs"
+
+[dependencies]
+meter-core = { path = "../meter-core" }
+# runtime_shaders compiles Metal shaders when the app runs, so building needs no Metal toolchain.
+gpui = { version = "0.2.2", default-features = false, features = ["font-kit", "runtime_shaders"] }
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+objc2 = "0.6"
+block2 = "0.6"
+objc2-foundation = { version = "0.3", features = ["NSString", "NSBundle", "NSError", "NSObject", "NSArray", "NSDictionary", "NSEnumerator"] }
+objc2-app-kit = { version = "0.3", features = ["NSStatusBar", "NSStatusItem", "NSStatusBarButton", "NSMenu", "NSMenuItem", "NSImage", "NSButton", "NSControl", "NSResponder", "NSView", "NSApplication", "NSAccessibility", "NSAccessibilityProtocols"] }
+objc2-user-notifications = { version = "0.3", features = ["UNUserNotificationCenter", "UNNotificationRequest", "UNNotificationContent", "UNNotificationTrigger", "UNNotificationSettings", "UNNotificationCategory", "block2", "UNError"] }
+objc2-service-management = { version = "0.3", features = ["SMAppService"] }
+
+[dev-dependencies]
+tempfile = "3"
+gpui = { version = "0.2.2", default-features = false, features = ["font-kit", "runtime_shaders", "test-support"] }
