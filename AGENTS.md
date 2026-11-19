@@ -30,3 +30,14 @@ Status belongs in the app README and the root catalog table.
 ## Root files
 
 Root `.gitignore` is only OS, editor, and secrets. Stack-specific ignores (`node_modules`, `.next`, `dist`, `.venv`, Xcode userdata, …) live in the app.
+
+## Agent Context & Work Logging Protocol
+
+Every time an AI agent performs work on an app in this repository:
+1. **Always read the app's `AGENT_WORKLOG.md` (and `AGENTS.md` / `README.md`) first** to understand the app's current state, recent changes, architecture choices, and ongoing tasks before doing any work.
+2. **Every time something is done, record that information in `apps/<slug>/AGENT_WORKLOG.md`** before ending your turn. Document:
+   - What was done (changes made, files touched, rationale).
+   - Current build, test, and artifact status.
+   - Ongoing work / next steps / unresolved questions.
+3. This ensures any future agent immediately understands the ongoing context and progress without the user needing to re-explain every time.
+

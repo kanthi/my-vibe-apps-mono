@@ -18,9 +18,15 @@ templates/    copy-paste starters — copy into apps/, never import
 |-----|------------|-------|--------|
 | [pramana](apps/pramana/) | Menu-bar Activity Monitor that lists apps, not processes | macOS (not started) | wip |
 | [focus](apps/focus/) | Menu-bar Pomodoro timer | macOS (not started) | wip |
-| [meter](apps/meter/) | Menu-bar monitor of local AI usage, starting with agy and Grok | macOS (not started) | wip |
+| [meter](apps/meter/) | Mac app and menu-bar monitor of local AI usage: Codex, Grok, Claude Code, Cursor, agy | macOS (Swift / SwiftUI, SwiftPM) | wip |
+| [meter-gpui](apps/meter-gpui/) | Rust + GPUI rewrite of Meter, with an AppKit menu bar item | macOS (Rust / GPUI / objc2) | wip |
+| [details](apps/details/) | App-first Mac activity monitor with history, alerts, and dev server, container and agent awareness | macOS (stack not chosen) | wip |
 | [freedium-browser-ext](apps/freedium-browser-ext/) | Opens the current page on freedium-mirror.cfd | Browser extension (Chrome, Brave, Firefox, Safari) | usable |
 | [timed-macos-scr](apps/timed-macos-scr/) | 3D analog clock macOS screen saver with live seconds and top-right digital HUD | macOS (Swift / SwiftUI / ScreenSaver) | usable |
+| [khoop](apps/khoop/) | Offline-first WHOOP companion & calorie deficit tracker | Multidevice: Swift / SwiftUI (iOS, macOS, watchOS) & Kotlin / Compose (Android) | usable |
+| [tanix](apps/tanix/) | Custom Linux distro based on NixOS: one flake builds a live + installer ISO offering KDE, Hyprland, two server setups and a Security Edition | Linux distro (NixOS / Nix flakes, Calamares) | wip |
+| [tanux](apps/tanux/) | Custom Linux distro based on Fedora 45: Everything-style netinstall ISO offering KDE, Sway, two server setups and a Security Edition | Linux distro (Fedora 45; Everything netinst + Anaconda + RPMs) | wip |
+| [guarto](apps/guarto/) | Renamed Octavo and moved to [kanthi/octavo](https://github.com/kanthi/octavo): Markdown books to a website, EPUB and PDF | CLI (Go) | graduated |
 
 Status is one of: `wip`, `usable`, `shipped`, `archived`, `graduated`.
 
