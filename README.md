@@ -20,6 +20,7 @@ templates/    copy-paste starters — copy into apps/, never import
 | [focus](apps/focus/) | Menu-bar Pomodoro timer | macOS (not started) | wip |
 | [meter](apps/meter/) | Mac app and menu-bar monitor of local AI usage: Codex, Grok, Claude Code, Cursor, agy | macOS (Swift / SwiftUI, SwiftPM) | wip |
 | [meter-gpui](apps/meter-gpui/) | Rust + GPUI rewrite of Meter, with an AppKit menu bar item | macOS (Rust / GPUI / objc2) | wip |
+| [machealth](apps/machealth/) | Local-first Mac health monitor, plain-English task manager, AI agent tracker, load balancer, and cleaner | macOS (Rust / GPUI / NSH / objc2) | wip |
 | [details](apps/details/) | App-first Mac activity monitor with history, alerts, and dev server, container and agent awareness | macOS (stack not chosen) | wip |
 | [freedium-browser-ext](apps/freedium-browser-ext/) | Opens the current page on freedium-mirror.cfd | Browser extension (Chrome, Brave, Firefox, Safari) | usable |
 | [timed-macos-scr](apps/timed-macos-scr/) | 3D analog clock macOS screen saver with live seconds and top-right digital HUD | macOS (Swift / SwiftUI / ScreenSaver) | usable |

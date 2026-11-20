@@ -1,0 +1,10 @@
+[package]
+name = "machealth-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+gpui = { version = "0.2.2", default-features = false, features = ["font-kit", "runtime_shaders"] }
+machealth-core = { path = "../machealth-core" }
